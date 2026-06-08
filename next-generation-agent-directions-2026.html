@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>下一代 Agent 方向判断 2026</title>
+  <style>
+    :root {
+      --paper: #fbfaf7;
+      --surface: #ffffff;
+      --ink: #17201c;
+      --muted: #5d6a63;
+      --line: #dbe3dc;
+      --green: #1f7a5c;
+      --green-2: #dff3eb;
+      --coral: #c8563d;
+      --coral-2: #fae4dd;
+      --gold: #af7a1a;
+      --gold-2: #f6ead1;
+      --violet: #6956a8;
+      --violet-2: #ebe7fb;
+      --cyan: #277386;
+      --cyan-2: #dff1f5;
+      --shadow: 0 14px 34px rgba(23, 32, 28, 0.08);
+      --radius: 8px;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: ui-serif, Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, rgba(223, 243, 235, 0.8), rgba(251, 250, 247, 0) 380px), var(--paper);
+      font-family: var(--sans);
+      line-height: 1.68;
+    }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+    }
+    .brand { padding: 0 8px 20px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+    .brand-kicker { color: var(--green); font-size: 12px; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand-title { margin-top: 8px; font-size: 20px; line-height: 1.18; font-weight: 900; }
+    .brand-meta { margin-top: 8px; color: var(--muted); font-size: 13px; }
+    nav { display: grid; gap: 4px; font-size: 14px; }
+    nav a { display: block; padding: 8px 10px; border-radius: 8px; color: #26312b; }
+    nav a:hover { background: var(--green-2); text-decoration: none; }
+    main { width: min(1160px, 100%); padding: 42px 44px 72px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr); gap: 28px; align-items: stretch; margin-bottom: 34px; }
+    h1 { margin: 0 0 18px; max-width: 880px; font-size: clamp(38px, 5.6vw, 76px); line-height: 0.98; letter-spacing: 0; }
+    .subtitle { max-width: 760px; margin: 0; color: #344139; font-size: 19px; line-height: 1.7; }
+    .stamp-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .stamp { display: inline-flex; align-items: center; min-height: 34px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.86); color: var(--muted); font-size: 13px; font-weight: 750; }
+    .thesis-card { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); display: grid; align-content: start; gap: 14px; }
+    .card-kicker { color: var(--green); font-size: 13px; font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; }
+    .big-quote { margin: 0; font-family: var(--serif); font-size: clamp(24px, 3vw, 38px); line-height: 1.35; }
+    section { margin: 44px 0; scroll-margin-top: 28px; }
+    h2 { margin: 0 0 16px; font-size: clamp(27px, 3vw, 42px); line-height: 1.12; letter-spacing: 0; }
+    h3 { margin: 0 0 10px; font-size: 19px; line-height: 1.25; letter-spacing: 0; }
+    .lede { max-width: 900px; color: #344139; font-size: 18px; margin: 0 0 18px; }
+    .direction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+    .direction-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 18px; min-height: 190px; box-shadow: 0 8px 20px rgba(23, 32, 28, 0.04); }
+    .direction-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .num { width: 32px; height: 32px; flex: none; display: inline-grid; place-items: center; border-radius: 999px; color: #fff; background: var(--green); font-size: 14px; font-weight: 900; }
+    .direction-card:nth-child(4n+2) .num { background: var(--coral); }
+    .direction-card:nth-child(4n+3) .num { background: var(--violet); }
+    .direction-card:nth-child(4n) .num { background: var(--cyan); }
+    .direction-card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.62; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border-radius: 999px; background: var(--green-2); color: var(--green); font-size: 12px; font-weight: 800; }
+    .tag.coral { background: var(--coral-2); color: var(--coral); }
+    .tag.gold { background: var(--gold-2); color: var(--gold); }
+    .tag.violet { background: var(--violet-2); color: var(--violet); }
+    .tag.cyan { background: var(--cyan-2); color: var(--cyan); }
+    .map { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); }
+    pre { margin: 0; overflow-x: auto; padding: 18px; border-radius: var(--radius); background: #1f2924; color: #e8f2ec; font-family: var(--mono); font-size: 14px; line-height: 1.65; }
+    .timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+    .time-card { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); min-height: 180px; }
+    .time-card strong { display: block; color: var(--green); margin-bottom: 8px; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .time-card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .callout { display: grid; gap: 12px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); margin: 22px 0; }
+    .compare { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin-top: 18px; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #edf5ef; font-weight: 850; color: #24322b; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { font-weight: 850; }
+    .footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 46px; }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { padding: 32px 22px 56px; }
+      .hero { grid-template-columns: 1fr; }
+      .direction-grid { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      nav { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+      .subtitle { font-size: 16px; }
+    }
+    @media print {
+      body { background: #fff; }
+      aside { display: none; }
+      .layout { display: block; }
+      main { width: 100%; padding: 0; }
+      .thesis-card, .direction-card, .map, .time-card, .callout { box-shadow: none; }
+      a { color: #000; text-decoration: underline; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <div class="brand-kicker">Strategy Memo</div>
+        <div class="brand-title">下一代 Agent 方向判断</div>
+        <div class="brand-meta">2026-06-08 · 独立短版</div>
+      </div>
+      <nav aria-label="目录">
+        <a href="#thesis">0. 核心判断</a>
+        <a href="#directions">1. 十个方向</a>
+        <a href="#map">2. 一张图</a>
+        <a href="#timeline">3. 时间判断</a>
+        <a href="#mvp">4. MVP 路线</a>
+        <a href="#compare">5. 方向对比</a>
+        <a href="#bottom-line">6. 最后一句话</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="thesis">
+        <div>
+          <h1>Self-Evolving Agent 是下一代 Agent 吗？</h1>
+          <p class="subtitle">它很可能是下一代 agent 的核心能力之一，但不是全部。下一代 agent 还需要手、眼、记忆、验证器、工具系统、协作机制和安全边界。</p>
+          <div class="stamp-row">
+            <span class="stamp">核心能力：学习与自我改进</span>
+            <span class="stamp">落地路径：Eval-first + Computer-use + Workflow + Memory</span>
+            <span class="stamp">长期形态：可控的自我进化系统</span>
+          </div>
+        </div>
+        <div class="thesis-card">
+          <div class="card-kicker">Thesis</div>
+          <p class="big-quote">Self-evolving agent 是下一代 agent 的“学习能力”，但下一代 agent 不是单靠 self-evolution 就能成立。</p>
+          <p>它解决的是当前 agent 最大的短板：脆、不稳定、经验不能复用、失败后不会真正变好。</p>
+        </div>
+      </header>
+
+      <section id="directions">
+        <h2>1. 业内还有哪些方向</h2>
+        <p class="lede">这些方向不是互斥的。真正有用的下一代 agent，大概率是多条线合流之后的系统，而不是单点技术突破。</p>
+        <div class="direction-grid">
+          <article class="direction-card"><div class="direction-head"><span class="num">1</span><h3>Computer-use / GUI Agent</h3></div><p>能真正操作电脑、浏览器、手机、App、文件系统的 agent。解决 agent 的“手和眼”。</p><div class="tag-row"><span class="tag">OSWorld</span><span class="tag cyan">AndroidWorld</span><span class="tag violet">WebArena</span><span class="tag gold">SWE-agent</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">2</span><h3>Long-horizon Agent</h3></div><p>连续跑几十分钟、几小时甚至几天。核心难点是任务分解、状态管理、错误恢复、上下文压缩和阶段性验证。</p><div class="tag-row"><span class="tag coral">Planning</span><span class="tag">Recovery</span><span class="tag cyan">State</span><span class="tag violet">Verification</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">3</span><h3>Multi-agent System</h3></div><p>多个 agent 有真实分工、并行执行、互相审查、知识流和团队生命周期。</p><div class="tag-row"><span class="tag">Manager</span><span class="tag coral">Workers</span><span class="tag gold">Critic</span><span class="tag violet">Population</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">4</span><h3>Agentic Workflow / Program</h3></div><p>把 agent 做成可编排、可测试、可版本化的程序，而不是黑盒聊天循环。</p><div class="tag-row"><span class="tag cyan">AFlow</span><span class="tag">ADAS</span><span class="tag coral">Workflow Search</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">5</span><h3>Verifiable / Eval-first Agent</h3></div><p>下一代 agent 的关键不是更会说，而是可验证。没有可靠评测，self-evolution 会变成 reward hacking。</p><div class="tag-row"><span class="tag gold">Verifier</span><span class="tag cyan">Trajectory Eval</span><span class="tag violet">Regression</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">6</span><h3>Memory-native Agent</h3></div><p>不是简单 RAG，而是有 episodic memory、semantic memory、skill memory、workflow memory、anti-pattern memory 和 raw trajectory log。</p><div class="tag-row"><span class="tag">Raw Logs</span><span class="tag coral">Skills</span><span class="tag gold">Anti-pattern</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">7</span><h3>Tool / MCP / Agent Infrastructure</h3></div><p>工具协议、权限、安全沙箱、上下文协议、状态管理、审计日志、回滚机制。agent 需要一套“操作系统”。</p><div class="tag-row"><span class="tag cyan">Tools</span><span class="tag">Permissions</span><span class="tag violet">Sandbox</span><span class="tag gold">Audit</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">8</span><h3>Domain-specific Agent</h3></div><p>金融、法律、医疗、科研、软件工程、销售、客服、供应链等垂直 agent。商业价值会先出现在有明确工具、数据、验证和 ROI 的场景。</p><div class="tag-row"><span class="tag coral">Coding</span><span class="tag">Research</span><span class="tag cyan">Finance</span><span class="tag violet">Ops</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">9</span><h3>Embodied / Robotics Agent</h3></div><p>从数字环境走向物理世界：机器人、自动驾驶、具身导航、实验室自动化。难度更高，因为错误成本高、环境不确定、动作不可逆。</p><div class="tag-row"><span class="tag gold">Robotics</span><span class="tag cyan">Simulation</span><span class="tag coral">Safety</span></div></article>
+          <article class="direction-card"><div class="direction-head"><span class="num">10</span><h3>Personalized Agent</h3></div><p>长期陪伴某个用户，理解其偏好、文件、工作流、沟通风格、隐私边界。</p><div class="tag-row"><span class="tag">Personal Memory</span><span class="tag violet">Privacy</span><span class="tag cyan">Workflow</span></div></article>
+        </div>
+      </section>
+
+      <section id="map">
+        <h2>2. 一张图</h2>
+        <p class="lede">下一代 agent 不是一个单独模块，而是一组能力叠起来的系统。</p>
+        <div class="map"><pre><code>下一代 Agent
+├─ 会操作真实环境：computer-use / browser / app / OS
+├─ 会做长任务：planning / recovery / verification
+├─ 会协作：multi-agent / population / specialization
+├─ 会积累经验：memory / skill / workflow memory
+├─ 会自我改进：self-evolving / harness evolution / code evolution
+├─ 可验证：eval-first / verifier / regression / safety
+├─ 可工程化：agentic workflow / tool protocol / sandbox / audit
+└─ 可个性化与垂直化：personal agent / domain agent</code></pre></div>
+      </section>
+
+      <section id="timeline">
+        <h2>3. 时间判断</h2>
+        <div class="timeline">
+          <article class="time-card"><strong>短期 1-2 年</strong><p>最先落地的不是完全自主 self-evolving agent，而是 eval-first + computer-use + workflow + memory 的组合。</p></article>
+          <article class="time-card"><strong>中期 2-4 年</strong><p>self-evolving 会变成成熟 agent 的标配能力：每完成一批任务，就能更新技能库、失败模式、workflow、tool wrapper 和 evaluator。</p></article>
+          <article class="time-card"><strong>更长期</strong><p>DGM 这种 code-level self-improvement 可能成为真正的下一代 agent engine，但会受到 sandbox、审计、人类审批和法律安全边界强约束。</p></article>
+        </div>
+      </section>
+
+      <section id="mvp">
+        <h2>4. MVP 路线</h2>
+        <p class="lede">如果现在要做，不建议第一天就做“自动改代码”或“完全自主进化”。更稳的路线是分两步：第一步先做一个能稳定完成真实任务、能被验证的 agent；第二步再让它从任务轨迹里沉淀经验，形成轻量 self-evolution。</p>
+        <div class="callout">
+          <div class="card-kicker">MVP Principle</div>
+          <p class="big-quote">第一步先证明 agent 能可靠干活；第二步再证明 agent 能越用越好。</p>
+        </div>
+        <div class="direction-grid">
+          <article class="direction-card">
+            <div class="direction-head"><span class="num">1</span><h3>第一步 MVP：可验证执行型 Agent</h3></div>
+            <p>目标不是 self-evolve，而是做一个在单一垂直场景里能真实执行、可观测、可验收、可回滚的 agent。它要能操作真实环境，但所有关键动作都被 workflow 和 verifier 约束。</p>
+            <div class="tag-row"><span class="tag">Eval-first</span><span class="tag cyan">Computer-use</span><span class="tag gold">Workflow</span><span class="tag violet">Trace Log</span></div>
+          </article>
+          <article class="direction-card">
+            <div class="direction-head"><span class="num">2</span><h3>第二步 MVP：轻量 Self-Evolving Agent</h3></div>
+            <p>在第一步稳定后，开放低风险的自进化对象：memory、failure pattern、skill card、workflow checklist、tool policy。agent 可以提出更新，但高风险更新先 human-gated。</p>
+            <div class="tag-row"><span class="tag coral">Memory</span><span class="tag">Skill</span><span class="tag cyan">Workflow Update</span><span class="tag gold">Human-gated</span></div>
+          </article>
+        </div>
+
+        <h3>第一步 MVP 具体做什么</h3>
+        <div class="compare">
+          <table>
+            <thead><tr><th>模块</th><th>要做什么</th><th>验收标准</th></tr></thead>
+            <tbody>
+              <tr><td>垂直任务</td><td>只选一个高频、边界清楚的场景，例如研究摘要、代码仓库问答、浏览器填表、CRM 更新。</td><td>任务输入和完成状态可定义，不追求通用。</td></tr>
+              <tr><td>Workflow</td><td>把任务拆成固定步骤：接收任务、检索上下文、执行、阶段验证、失败恢复、人工确认、最终提交。</td><td>每一步有进入条件、退出条件和失败分支。</td></tr>
+              <tr><td>Computer-use / Tools</td><td>接入浏览器、文件、API、IDE 或 SaaS 工具，但先限制工具集合和权限。</td><td>能完成真实环境操作，关键动作有日志。</td></tr>
+              <tr><td>Eval / Verifier</td><td>先设计验收器：状态检查、测试、格式检查、引用检查、安全检查、成本检查。</td><td>不是 agent 说完成，而是 verifier 判定完成。</td></tr>
+              <tr><td>Trace Log</td><td>记录每次任务的输入、计划、动作、工具调用、观察、错误、最终输出、验收结果。</td><td>失败后能复盘到具体步骤和工具调用。</td></tr>
+              <tr><td>Human Approval</td><td>发送邮件、提交订单、删除文件、付款、外部发布等动作必须停下来确认。</td><td>高风险动作不会自动越权执行。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">第一步 MVP 的成功标准：不是“agent 很聪明”，而是它在一个具体场景里能稳定完成任务，并且每次成功或失败都能被验证、被复盘、被回滚。</p>
+
+        <h3>第二步 MVP 具体做什么</h3>
+        <div class="compare">
+          <table>
+            <thead><tr><th>可进化对象</th><th>自动生成什么</th><th>如何防止越进化越差</th></tr></thead>
+            <tbody>
+              <tr><td>Memory</td><td>从成功和失败轨迹中生成用户偏好、工具坑点、任务 SOP、失败模式。</td><td>保留 raw trace；每条 memory 带 source_run_id、适用范围、置信度和过期条件。</td></tr>
+              <tr><td>Skill Card</td><td>把重复成功流程沉淀成 skill：intent、preconditions、steps、validation、failure modes。</td><td>skill 必须有 probe task 或 validation checklist；低成功率自动降权。</td></tr>
+              <tr><td>Workflow Checklist</td><td>根据失败归因给 workflow 加步骤、加 recovery branch、加 human approval point。</td><td>新 workflow 先在 held-out / regression 任务上验证，不能只修当前案例。</td></tr>
+              <tr><td>Tool Policy</td><td>生成工具使用提示、pre-check、post-check、风险等级、失败恢复策略。</td><td>权限、发送、删除、付款等高风险策略必须人工确认。</td></tr>
+              <tr><td>Evaluator Notes</td><td>总结 verifier 漏判、误判、需要新增的检查项。</td><td>evaluator 不能自己改 gold labels；新 verifier 要过校准集。</td></tr>
+              <tr><td>Failure Taxonomy</td><td>把失败归类为上下文缺失、工具错误、流程错误、验证缺失、模型误判、外部环境变化。</td><td>每类失败都要能映射到具体修复对象，避免泛泛地“优化 prompt”。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">第二步 MVP 的成功标准：同类任务第二次、第三次执行时，能因为历史经验而减少步骤、减少失败、减少人工介入，并且没有增加安全风险或旧任务 regression。</p>
+
+        <h3>两个 MVP 的闭环差异</h3>
+        <div class="map"><pre><code>第一步 MVP：可验证执行
+User Task -> Workflow -> Tool / Computer-use -> Verifier -> Human Approval -> Trace Log
+
+第二步 MVP：轻量自进化
+Trace Log -> Diagnose -> Candidate Update -> Validate -> Approve / Merge -> Future Runs</code></pre></div>
+      </section>
+
+      <section id="compare">
+        <h2>5. 方向对比</h2>
+        <div class="compare"><table><thead><tr><th>方向</th><th>解决的核心短板</th><th>落地成熟度</th><th>和 self-evolving 的关系</th></tr></thead><tbody>
+          <tr><td>Computer-use</td><td>agent 没有稳定的手和眼</td><td>高增长，正在产品化</td><td>提供真实轨迹，是 self-evolution 的经验来源</td></tr>
+          <tr><td>Long-horizon</td><td>短任务强，长任务易崩</td><td>中</td><td>长任务自然需要经验复用和失败恢复</td></tr>
+          <tr><td>Multi-agent</td><td>单 agent 容量和可靠性有限</td><td>中</td><td>可进化团队结构、知识流和 specialization</td></tr>
+          <tr><td>Agentic workflow</td><td>黑盒循环不可控</td><td>较高</td><td>workflow 是最适合先做自进化的对象之一</td></tr>
+          <tr><td>Eval-first</td><td>不知道 agent 是否真的变好</td><td>基础设施期</td><td>没有 eval，self-evolution 会变成 reward hacking</td></tr>
+          <tr><td>Memory-native</td><td>经验不能复用</td><td>中</td><td>self-evolution 的低风险入口</td></tr>
+          <tr><td>Infrastructure</td><td>工具、权限、审计和回滚缺失</td><td>快速标准化</td><td>决定 self-evolving agent 能否安全落地</td></tr>
+          <tr><td>Domain-specific</td><td>通用 agent ROI 不清晰</td><td>高</td><td>垂直场景更容易构造 verifier 和 regression suite</td></tr>
+          <tr><td>Embodied</td><td>无法进入物理世界</td><td>较早期</td><td>需要更强仿真、验证和安全约束</td></tr>
+          <tr><td>Personalized</td><td>缺少长期用户上下文</td><td>产品探索期</td><td>需要可控记忆和个性化策略演化</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section id="bottom-line">
+        <h2>6. 最后一句话</h2>
+        <div class="callout"><div class="card-kicker">Bottom Line</div><p class="big-quote">Self-evolving agent 是下一代 agent 的“学习能力”，但下一代 agent 还需要手、眼、记忆、验证器、工具系统、协作机制和安全边界。</p></div>
+      </section>
+
+      <div class="footer"><p>Standalone memo generated from the discussion on next-generation agent directions. Related long report: self-evolving-agent-frontier-2026.html.</p></div>
+    </main>
+  </div>
+</body>
+</html>

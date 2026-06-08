@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Self-Evolving Agent 前沿调研框架 2026</title>
+  <style>
+    :root {
+      --paper: #fbfaf7;
+      --surface: #ffffff;
+      --surface-2: #f1f5f2;
+      --ink: #17201c;
+      --muted: #5d6a63;
+      --line: #dbe3dc;
+      --green: #1f7a5c;
+      --green-2: #dff3eb;
+      --coral: #c8563d;
+      --coral-2: #fae4dd;
+      --gold: #af7a1a;
+      --gold-2: #f6ead1;
+      --violet: #6956a8;
+      --violet-2: #ebe7fb;
+      --cyan: #277386;
+      --cyan-2: #dff1f5;
+      --shadow: 0 12px 30px rgba(23, 32, 28, 0.08);
+      --radius: 8px;
+      --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: ui-serif, Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(223, 243, 235, 0.72), rgba(251, 250, 247, 0) 360px),
+        var(--paper);
+      font-family: var(--sans);
+      line-height: 1.68;
+    }
+
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 8px 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+
+    .brand-kicker {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      line-height: 1.18;
+      font-weight: 850;
+    }
+
+    .brand-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 4px;
+      font-size: 14px;
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #26312b;
+    }
+
+    nav a:hover {
+      background: var(--green-2);
+      text-decoration: none;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      padding: 42px 44px 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .hero-copy {
+      padding: 28px 0;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      max-width: 860px;
+      font-size: clamp(36px, 5.4vw, 72px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: #344139;
+      font-size: 19px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .stamp-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.82);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .flow-panel {
+      min-height: 360px;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+      font-weight: 850;
+    }
+
+    .flow-node {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      font-size: 14px;
+    }
+
+    .flow-node strong { display: block; font-size: 15px; }
+    .flow-arrow { color: var(--muted); text-align: center; font-family: var(--mono); }
+
+    section {
+      margin: 42px 0;
+      scroll-margin-top: 28px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 28px 0 12px;
+      font-size: 22px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 880px;
+      color: #344139;
+      font-size: 18px;
+      margin: 0 0 18px;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border-left: 4px solid var(--gold);
+      background: var(--gold-2);
+      border-radius: 0 8px 8px 0;
+      color: #443317;
+      margin: 18px 0;
+    }
+
+    .callout {
+      display: grid;
+      gap: 12px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      margin: 22px 0;
+    }
+
+    .callout-title {
+      color: var(--green);
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .big-quote {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.7vw, 34px);
+      line-height: 1.42;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .object-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .object-card, .mini-card, .paper-card, .layer-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 15px;
+      min-width: 0;
+    }
+
+    .object-card {
+      min-height: 134px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .object-index {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .object-card:nth-child(3n+2) .object-index { background: var(--coral); }
+    .object-card:nth-child(3n) .object-index { background: var(--violet); }
+
+    .object-card h4, .mini-card h4, .paper-card h4, .layer-card h4 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .object-card p, .mini-card p, .paper-card p, .layer-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .pipe-step {
+      position: relative;
+      padding: 16px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      min-height: 118px;
+    }
+
+    .pipe-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      height: 2px;
+      background: var(--line);
+    }
+
+    .pipe-step b {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--green);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      margin: 16px 0 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #edf5ef;
+      color: #24322b;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { font-weight: 800; color: #22302a; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--green-2);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      margin: 2px 4px 2px 0;
+    }
+
+    .tag.coral { background: var(--coral-2); color: var(--coral); }
+    .tag.gold { background: var(--gold-2); color: var(--gold); }
+    .tag.violet { background: var(--violet-2); color: var(--violet); }
+    .tag.cyan { background: var(--cyan-2); color: var(--cyan); }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 900;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: "+";
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--green);
+      font-weight: 900;
+      flex: none;
+    }
+
+    details[open] summary::after { content: "-"; }
+
+    .details-body {
+      padding: 0 18px 18px;
+      color: #2d3932;
+    }
+
+    .details-body p { margin-top: 0; }
+
+    pre {
+      overflow-x: auto;
+      padding: 16px;
+      border-radius: var(--radius);
+      background: #1f2924;
+      color: #e8f2ec;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    code { font-family: var(--mono); }
+
+    ul, ol { padding-left: 22px; }
+    li { margin: 7px 0; }
+
+    .blueprint {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(140px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin: 18px 0;
+    }
+
+    .layer-card {
+      min-height: 230px;
+      border-top: 5px solid var(--green);
+    }
+
+    .layer-card:nth-child(2) { border-top-color: var(--coral); }
+    .layer-card:nth-child(3) { border-top-color: var(--violet); }
+    .layer-card:nth-child(4) { border-top-color: var(--cyan); }
+    .layer-card:nth-child(5) { border-top-color: var(--gold); }
+    .layer-card:nth-child(6) { border-top-color: var(--green); }
+    .layer-card:nth-child(7) { border-top-color: var(--coral); }
+
+    .layer-card ul {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .reading-list {
+      counter-reset: paper;
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .reading-item {
+      counter-increment: paper;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .reading-item::before {
+      content: counter(paper);
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .reading-item strong { display: block; }
+    .reading-item span { color: var(--muted); font-size: 14px; }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .check span:first-child {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--green-2);
+      color: var(--green);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      margin-top: 46px;
+    }
+
+    .print-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 6px 12px;
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { padding: 32px 22px 56px; }
+      .hero { grid-template-columns: 1fr; }
+      .object-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pipeline { grid-template-columns: 1fr; }
+      .pipe-step:not(:last-child)::after { display: none; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .checklist { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      nav { grid-template-columns: 1fr; }
+      .object-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+      .subtitle { font-size: 16px; }
+      table { min-width: 760px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      aside { display: none; }
+      .layout { display: block; }
+      main { width: 100%; padding: 0; }
+      .hero { display: block; }
+      .flow-panel, .callout, .object-card, .mini-card, .paper-card, .layer-card, details, .reading-item, .check { box-shadow: none; }
+      details { break-inside: avoid; }
+      a { color: #000; text-decoration: underline; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <div class="brand-kicker">Research Brief</div>
+        <div class="brand-title">Self-Evolving Agent 前沿调研</div>
+        <div class="brand-meta">2024-2026 重点 · 2026-06-08</div>
+      </div>
+      <nav aria-label="目录">
+        <a href="#summary">0. 一句话结论</a>
+        <a href="#objects">1. 可进化对象</a>
+        <a href="#papers">2. 论文地图</a>
+        <a href="#framework">3. 总框架</a>
+        <a href="#patterns">4. 最佳范式</a>
+        <a href="#evaluation">5. 评测方法</a>
+        <a href="#questions">6. 关键问题</a>
+        <a href="#blueprint">7. 工程蓝图</a>
+        <a href="#trends">8. 趋势判断</a>
+        <a href="#reading">9. 深读顺序</a>
+        <a href="#definition">10. 定义与 Checklist</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="hero-copy">
+          <h1>Self-Evolving Agent 前沿调研框架</h1>
+          <p class="subtitle">从“会反思的 agent”到“可修改、可验证、可回滚的 agentic system”。这份报告聚焦 2024-2026 的最新研究，把 self-evolution 拆成系统组件、证据链、验证机制和工程边界。</p>
+          <div class="stamp-row">
+            <span class="stamp">重点年份：2024-2026</span>
+            <span class="stamp">核心主题：Agent · Harness · Skill · Eval</span>
+            <span class="stamp">定位：前沿方向信号 + 框架设计素材</span>
+          </div>
+          <a class="print-link" href="javascript:window.print()">打印 / 导出 PDF</a>
+        </div>
+        <div class="flow-panel" aria-label="self-evolving agent pipeline">
+          <div class="flow-title">当前最佳范式 <span class="tag">typed evolution</span></div>
+          <div class="flow-node"><strong>Instrumented Trajectories</strong>原始轨迹、工具调用、错误、成本、人工反馈。</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node"><strong>Diagnose / Attribute</strong>定位失败来自 prompt、skill、tool、workflow、harness、memory 或 evaluator。</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node"><strong>Bounded Edits</strong>只在明确类型空间里生成候选修改。</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node"><strong>Validate + Archive</strong>held-out、regression、安全验证；保留成功变体与失败证据。</div>
+        </div>
+      </header>
+
+      <section id="summary">
+        <h2>0. 一句话结论</h2>
+        <div class="note">2026 年论文多数仍很新，很多尚未经过长期复现和工程验证。这里把它们作为前沿方向信号，而不是把每个实验结论都当成稳定事实。</div>
+        <div class="callout">
+          <div class="callout-title">Core Takeaway</div>
+          <p class="big-quote">Self-evolving agent 的关键不是“会反思”，而是有明确的可修改对象、可追踪证据、独立验证、版本归档和安全边界。</p>
+        </div>
+        <p class="lede">2024-2026 的研究已经从早期的“让 LLM 反思并写一段记忆”，升级为“让 agent 系统的可变层被显式建模、被轨迹证据驱动、被独立 evaluator 验证、并在 archive、population、harness 中持续搜索”。</p>
+      </section>
+
+      <section id="objects">
+        <h2>1. 哪些部分可以 Self-Evolve</h2>
+        <p class="lede">最前沿的方向不是单点优化 system prompt，而是把 agent 拆成一组可进化对象。越靠近 harness、代码和参数，能力上限越高，安全和治理要求也越高。</p>
+        <div class="object-grid">
+          <article class="object-card"><span class="object-index">1</span><h4>Policy / System Prompt</h4><p>任务策略、推理准则、rubric、meta-prompt。</p></article>
+          <article class="object-card"><span class="object-index">2</span><h4>Memory / Experience</h4><p>原始轨迹、反思、经验树、失败模式、可检索案例。</p></article>
+          <article class="object-card"><span class="object-index">3</span><h4>Skills</h4><p>可复用过程、代码片段、工作流模板、操作例程。</p></article>
+          <article class="object-card"><span class="object-index">4</span><h4>Tools</h4><p>工具包装、组合、选择、接口修复和 retirement。</p></article>
+          <article class="object-card"><span class="object-index">5</span><h4>Workflow / Program</h4><p>节点、边、调用顺序、分支、review loop。</p></article>
+          <article class="object-card"><span class="object-index">6</span><h4>Harness</h4><p>执行环境、上下文、工具接口、生命周期、观测、治理。</p></article>
+          <article class="object-card"><span class="object-index">7</span><h4>Evaluator / Reward</h4><p>自动评审、测试、critic、benchmark、virtual task。</p></article>
+          <article class="object-card"><span class="object-index">8</span><h4>Population</h4><p>角色分工、团队选择、知识流、fork、merge、prune。</p></article>
+          <article class="object-card"><span class="object-index">9</span><h4>Code / Architecture</h4><p>agent 自己的代码、编辑工具、上下文窗口策略、review 机制。</p></article>
+          <article class="object-card"><span class="object-index">10</span><h4>Fast Weights</h4><p>LoRA、online adaptation、parametric memory，仍处早期。</p></article>
+        </div>
+      </section>
+
+      <section id="papers">
+        <h2>2. 近两年前沿论文地图</h2>
+        <h3>2.1 系统 / 架构级自进化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>方向</th><th>代表工作</th><th>进化对象</th><th>主要范式</th><th>关键启发</th></tr></thead>
+            <tbody>
+              <tr><td>Agentic system 自动设计</td><td><a href="https://arxiv.org/abs/2408.08435">ADAS / Meta Agent Search</a>, 2024</td><td>agent 代码、prompt、workflow、工具组合</td><td>meta-agent 编写新 agent 代码，维护 archive</td><td>agent 不只是被 prompt 调，本身可以作为程序被搜索。</td></tr>
+              <tr><td>Workflow 自动生成</td><td><a href="https://arxiv.org/abs/2410.10762">AFlow</a>, 2024-2025</td><td>code-represented workflow：节点与边</td><td>MCTS + 代码修改 + 执行反馈</td><td>把 workflow 优化视为代码搜索，而不是手写流程图。</td></tr>
+              <tr><td>自修改代码 agent</td><td><a href="https://arxiv.org/abs/2505.22954">Darwin Godel Machine</a>, 2025-2026</td><td>coding agent 的代码、工具、上下文管理、peer review 机制</td><td>open-ended archive + foundation model 生成变体 + coding benchmark 验证</td><td>目前最像“真正 self-improving agent”的路线。</td></tr>
+              <tr><td>Agentic evolution harness</td><td><a href="https://arxiv.org/abs/2605.13821">AEvo / Harnessing Agentic Evolution</a>, 2026</td><td>控制进化过程的 procedure / agent context</td><td>把 evolution context 建模成交互环境，meta-agent 编辑进化机制</td><td>进化过程本身也需要 harness，否则长期搜索会漂移。</td></tr>
+              <tr><td>Harness flaw repair</td><td><a href="https://arxiv.org/abs/2606.06324">HarnessFix</a>, 2026</td><td>环境、工具接口、上下文、编排、观测、验证、治理</td><td>trace IR + 失败归因 + scoped repair operator + regression validation</td><td>“agent 不行”经常其实是 harness 坏了。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>2.2 Skill / Memory / Tool 级自进化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>方向</th><th>代表工作</th><th>进化对象</th><th>主要范式</th><th>关键启发</th></tr></thead>
+            <tbody>
+              <tr><td>Workflow memory</td><td><a href="https://arxiv.org/abs/2409.07429">Agent Workflow Memory</a>, 2024</td><td>常用任务流程 / 例程</td><td>从历史轨迹归纳 reusable workflows，按任务检索注入</td><td>长程 web 任务里，“流程记忆”比普通摘要更有用。</td></tr>
+              <tr><td>Skill 开放世界自举</td><td><a href="https://arxiv.org/abs/2606.06741">OpenSkill</a>, 2026</td><td>skill + verifier anchors</td><td>从文档、仓库、web 获取知识，生成 virtual tasks，自建验证信号</td><td>真部署时没有 gold answer，agent 必须先造练习场和验收器。</td></tr>
+              <tr><td>Skill 层级化整合</td><td><a href="https://arxiv.org/abs/2606.03692">SkillPyramid</a>, 2026</td><td>hierarchical skill topology</td><td>compose / validate / incorporate 新 skill</td><td>skill bank 不能只是平铺列表，需要拓扑、复用、泛化。</td></tr>
+              <tr><td>Skill-tool 协同进化</td><td><a href="https://arxiv.org/abs/2606.01314">SkillSmith</a>, 2026</td><td>skill 与 tool 同时进化</td><td>skill-tool atomic bundle，估计互补/冲突，记录 anti-pattern</td><td>skill 失败可能来自 tool 层，二者要一起改。</td></tr>
+              <tr><td>记忆退化风险</td><td><a href="https://arxiv.org/abs/2605.12978">Useful Memories Become Faulty</a>, 2026</td><td>episodic traces 与 consolidated memory</td><td>对比保留原始轨迹、强制总结、可控 retain/delete/consolidate</td><td>持续 LLM 总结可能把有用记忆改坏；raw episode 必须是一等公民。</td></tr>
+              <tr><td>经验结构化</td><td><a href="https://arxiv.org/abs/2606.06960">Tree-of-Experience</a>, 2026</td><td>experience tree</td><td>组织、检索、验证、更新经验</td><td>低重复、隐式奖励环境中，经验管理比“多记一点”更关键。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>2.3 Multi-agent / Population 级自进化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>方向</th><th>代表工作</th><th>进化对象</th><th>主要范式</th><th>关键启发</th></tr></thead>
+            <tbody>
+              <tr><td>自动生成 multi-agent</td><td><a href="https://arxiv.org/abs/2406.14228">EvoAgent</a>, 2024-2025</td><td>多 agent 配置、角色、设置</td><td>mutation / crossover / selection</td><td>从单 agent 扩展到多 agent，可以用进化算法搜索团队结构。</td></tr>
+              <tr><td>开放式多 agent 发现</td><td><a href="https://arxiv.org/abs/2604.01658">CORAL</a>, 2026</td><td>long-running agents、shared persistent memory、协作机制</td><td>异步多 agent + 共享记忆 + heartbeat intervention + sandbox</td><td>长期 open-ended search 需要自治，也需要资源、安全和会话治理。</td></tr>
+              <tr><td>测试时多 agent 共进化</td><td><a href="https://arxiv.org/abs/2605.11136">EVOCHAMBER</a>, 2026</td><td>individual memory、team structure、population lifecycle、knowledge flow</td><td>collaborative dreaming，定向传递 niche knowledge，fork/merge/prune/seed</td><td>核心是协作拓扑和知识流也在进化。</td></tr>
+              <tr><td>社会化进化评估</td><td><a href="https://arxiv.org/abs/2606.03544">SAGE</a>, 2026</td><td>peer history 与 group learning</td><td>SelfEvo vs SocialEvo compute-matched 对照</td><td>共享历史不是总有用，filtered summaries 往往优于 raw logs。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>2.4 Eval / Reward / Scientific Loop</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>方向</th><th>代表工作</th><th>进化对象</th><th>主要范式</th><th>关键启发</th></tr></thead>
+            <tbody>
+              <tr><td>自动科研闭环</td><td><a href="https://arxiv.org/abs/2408.06292">The AI Scientist</a>, 2024</td><td>idea、code、experiment、paper、review</td><td>idea -> coding -> experiments -> paper -> simulated review</td><td>self-evolution 需要完整闭环，不只是 task solver。</td></tr>
+              <tr><td>Agent-computer interface</td><td><a href="https://arxiv.org/abs/2405.15793">SWE-agent</a>, 2024</td><td>agent-computer interface / ACI</td><td>为 agent 设计专门工具界面</td><td>工具接口设计本身决定 agent 能力上限。</td></tr>
+              <tr><td>GUI reward critic</td><td><a href="https://arxiv.org/abs/2603.19191">OS-Themis</a>, 2026</td><td>reward / critic framework</td><td>分解轨迹为可验证 milestones，多 agent critic 审计证据链</td><td>reward model 不是一句 judge prompt，而是证据链与里程碑验证。</td></tr>
+              <tr><td>Human-like oversight</td><td><a href="https://arxiv.org/abs/2606.06114">ANCHOR</a>, 2026</td><td>oversight phase / intervention policy</td><td>在 evolution 的不同阶段插入人类式监督</td><td>最有效干预点往往是 output verification，不是每一步都管。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="framework">
+        <h2>3. 一个可用的总框架</h2>
+        <p class="lede">Self-evolving agent 至少有三层循环。B 层是自进化核心，但不能脱离 A 层经验和 C 层治理。</p>
+        <div class="grid-3">
+          <article class="mini-card"><h4>A. Task-solving loop</h4><p>user / task -> plan -> act / tool -> observe -> produce output</p></article>
+          <article class="mini-card"><h4>B. Learning / evolution loop</h4><p>trajectory -> diagnose -> propose edit -> validate -> archive -> deploy / retrieve</p></article>
+          <article class="mini-card"><h4>C. Governance loop</h4><p>sandbox -> permissions -> audit log -> regression suite -> safety reviewer -> rollback</p></article>
+        </div>
+        <div class="pipeline">
+          <div class="pipe-step"><b>1. Evidence Capture</b>保存轨迹、工具调用、环境观察、错误、成本和反馈。</div>
+          <div class="pipe-step"><b>2. Failure Attribution</b>判断失败来自 prompt、skill、tool、workflow、harness、memory 或 model。</div>
+          <div class="pipe-step"><b>3. Typed Proposal</b>只在明确类型空间里生成候选修改。</div>
+          <div class="pipe-step"><b>4. Validation</b>在 probe、held-out、regression、安全集上验证。</div>
+          <div class="pipe-step"><b>5. Archive / Deploy</b>保留成功变体和失败证据，决定上线、灰度或丢弃。</div>
+        </div>
+      </section>
+
+      <section id="patterns">
+        <h2>4. 各部分目前最佳进化范式</h2>
+        <details open>
+          <summary>4.1 System Prompt / Policy / Rubric</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>system prompt、developer instruction、任务准则、输出格式、打分 rubric、风险规则、meta-prompt。</p>
+            <p><strong>2026 更优范式：</strong>结构化、可归因、可审计的 policy edit。不要让 agent 自由改整段 system prompt，而是拆成 role constraints、allowed actions、decision rules、tool-selection rules、error-handling rules、verification checklist、safety rules 和 output contract。</p>
+            <p><strong>最佳实践：</strong>离线可用 OPRO / PromptBreeder 做 prompt discovery；线上部署应转成结构化 policy diff。system prompt 分稳定宪法层、任务策略层、可进化经验层，只有后两层允许自动修改。</p>
+            <p><strong>风险：</strong>semantic drift、删除关键约束、引入隐性目标、benchmark 过拟合。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.2 Memory / Experience</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>原始 episode、反思、错误模式、经验树、workflow trace、成功案例、失败案例、anti-pattern、检索索引。</p>
+            <p><strong>2026 更优范式：</strong>raw episodes first + gated consolidation + structured experience management。</p>
+            <pre><code>raw trajectory store   不可覆盖证据
+case index             可检索案例
+reflection notes       可丢弃/可替换
+consolidated lessons   受控生成，需要验证
+anti-pattern bank      失败签名 + 原因 + remedy
+experience graph/tree  组织适用范围、前置条件、冲突关系</code></pre>
+            <p><strong>关键提醒：</strong>持续总结不一定让 agent 更聪明，可能让记忆越来越假。原始轨迹必须是一等公民。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.3 Skills</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>可执行代码技能、操作流程、任务模板、浏览器/GUI 例程、问题求解策略、领域方法。</p>
+            <p><strong>2026 最佳范式：</strong>skill 不只是存储，而是经历 create / compose / validate / retire / specialize / generalize。</p>
+            <p>成熟 skill 应包含 name、intent、preconditions、inputs / outputs、procedure or code、required tools、validation probes、known failure modes、examples、version、usage stats、conflicts / complements、retirement criteria。</p>
+            <p><strong>风险：</strong>skill 会互相冲突；单独有效不代表组合有效。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.4 Tools</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>工具选择策略、工具 wrapper、API 参数、错误恢复、工具组合、工具拆分、工具 retirement。</p>
+            <p><strong>最佳范式：</strong>skill-tool atomic bundle。一次进化提案可同时包含新 skill、tool wrapper、validation probes、与现有 skills 的交互预期和 anti-pattern veto。</p>
+            <p><strong>最佳实践：</strong>工具返回结构化；每个 wrapper 有 contract tests；高风险 tool policy 由 harness enforce。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.5 Workflow / Agentic Program</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>agentic workflow 的节点、边、分支、循环、reviewer、critic、tool-call 顺序、并行结构。</p>
+            <p><strong>最佳范式：</strong>code-represented workflow + search + execution feedback。代码表示可 diff、可测试、可执行、可组合，也可被 agent 修改。</p>
+            <p><strong>风险：</strong>workflow 搜索容易 benchmark overfit，必须做 held-out suite 与 cross-domain transfer。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.6 Harness</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>执行环境、工具接口、上下文装配、生命周期编排、observability、verification、governance、sandbox、权限、日志。</p>
+            <p><strong>最佳范式：</strong>trace-guided harness diagnosis + scoped repair。</p>
+            <pre><code>raw trajectory + harness code
+  -> Harness-aware Trace IR
+  -> step-level provenance + control-flow relation
+  -> failure attribution to harness layer
+  -> flaw record
+  -> scoped repair operator
+  -> regression validation</code></pre>
+            <p><strong>关键提醒：</strong>harness 的目标不是让 agent 更自由，而是让失败更可诊断、能力更稳定、安全边界更清楚。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.7 Evaluator / Verifier / Reward</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>测试集、probe task、自动评审器、reward model、critic prompt、rubric、milestone decomposition、安全评估。</p>
+            <p><strong>最佳范式：</strong>multi-signal, evidence-grounded evaluation。</p>
+            <pre><code>unit / integration tests
+benchmark score
+trajectory-level verifier
+milestone-level evidence check
+LLM judge with rubric
+human or human-like oversight
+cost / latency / robustness metrics
+safety / policy checks
+regression suite</code></pre>
+            <p><strong>风险：</strong>reward hacking。越是自进化系统，越要把 evaluator 当攻击面。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.8 Multi-agent Population</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>角色、团队组成、协作结构、知识流、agent 生命周期、specialization、fork/merge/prune/seed。</p>
+            <p><strong>最佳范式：</strong>population archive + specialization-preserving knowledge transfer。</p>
+            <pre><code>who collaborates
+how they collaborate
+how knowledge flows</code></pre>
+            <p>知识传递应不对称、按 niche 路由，而不是全员共享 raw logs。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.9 Code / Architecture</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>agent 源码、编辑工具、上下文窗口管理、review 机制、工具调用代码、搜索算法。</p>
+            <p><strong>最佳范式：</strong>open-ended archive + empirical validation + sandboxed self-modification。</p>
+            <pre><code>sample existing agent from archive
+  -> foundation model proposes code modification
+  -> run benchmark / tests / safety checks
+  -> add interesting high-quality variant to archive
+  -> continue branching search</code></pre>
+            <p><strong>风险：</strong>这是最接近“agent 改自己”的路线，能力提升和安全风险同时最高。</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>4.10 Model Parameters / Fast Weights</summary>
+          <div class="details-body">
+            <p><strong>进化对象：</strong>临时 LoRA、fast weights、parametric memory、online adaptation policy。</p>
+            <p><strong>最佳范式：</strong>explicit memory + fast parametric adaptation 的双轨制。</p>
+            <p><strong>实践判断：</strong>产品系统短期仍优先 non-parametric evolution：prompt、memory、skill、workflow、harness。参数自适应更适合高重复、可验证、可隔离的场景。</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="evaluation">
+        <h2>5. 不同自进化部分如何做评测</h2>
+        <div class="callout">
+          <div class="callout-title">Short Answer</div>
+          <p class="big-quote">必须分开评测，也必须一起评测。分层评测负责 attribution，端到端评测负责 utility，长期评测负责 stability。</p>
+        </div>
+        <p class="lede">只做端到端评测不够，因为不知道到底是哪一层带来提升或退化；只做分层评测也不够，因为局部收益经常不转化成真实任务收益。稳妥做法是从单组件、相邻层交互、端到端任务、长期多轮、生产监控五级递进。</p>
+        <div class="pipeline">
+          <div class="pipe-step"><b>Level 1</b>Component eval<br />单独测一个可进化对象是否变好。</div>
+          <div class="pipe-step"><b>Level 2</b>Interaction eval<br />测它和相邻层组合后是否变好。</div>
+          <div class="pipe-step"><b>Level 3</b>End-to-end eval<br />测真实任务成功率、成本、鲁棒性。</div>
+          <div class="pipe-step"><b>Level 4</b>Longitudinal eval<br />测多轮 evolution 后是否持续变好。</div>
+          <div class="pipe-step"><b>Level 5</b>Production eval<br />测线上漂移、失败级联、安全和人工介入。</div>
+        </div>
+
+        <h3>5.1 评测时固定什么，放开什么</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>自进化层</th><th>固定项</th><th>允许变化</th><th>核心问题</th></tr></thead>
+            <tbody>
+              <tr><td>Prompt / policy</td><td>model、tools、workflow、harness、eval set</td><td>prompt / rule / rubric</td><td>规则变化是否独立贡献提升？</td></tr>
+              <tr><td>Memory / experience</td><td>model、prompt、tools、workflow</td><td>memory contents、retrieval、consolidation policy</td><td>经验是否真的被正确检索并带来收益？</td></tr>
+              <tr><td>Skill</td><td>model、harness、tool contracts</td><td>skill library、skill selection</td><td>skill 是泛化能力，还是只记住训练任务？</td></tr>
+              <tr><td>Tool</td><td>model、task set、policy</td><td>wrapper、参数、tool routing、error recovery</td><td>工具变化是否降低失败率和成本？</td></tr>
+              <tr><td>Workflow</td><td>model、tools、task set</td><td>graph、节点、边、review loop</td><td>流程结构是否带来 cost-normalized improvement？</td></tr>
+              <tr><td>Harness</td><td>model、agent policy、benchmark</td><td>context construction、tool interface、lifecycle、verification</td><td>失败是否来自 harness 层？修复是否可迁移？</td></tr>
+              <tr><td>Evaluator</td><td>task outputs、human labels、gold tests</td><td>judge、rubric、reward、verifier</td><td>evaluator 是否更接近真实质量，且不易被 hack？</td></tr>
+              <tr><td>Population</td><td>task stream、model pool、budget</td><td>team formation、knowledge flow、lifecycle</td><td>群体收益是否超过同预算 self-evo？</td></tr>
+              <tr><td>Code / architecture</td><td>benchmark、sandbox、budget</td><td>agent code、tools、context management</td><td>自修改是否带来 held-out 提升而非 benchmark exploit？</td></tr>
+              <tr><td>Fast weights</td><td>data stream、eval protocol、privacy constraints</td><td>LoRA / online update policy</td><td>参数更新是否比外部记忆更有效且可控？</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5.2 每一层分别怎么评测</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>自进化层</th><th>分层评测</th><th>端到端 / 交互评测</th><th>关键指标</th><th>典型陷阱</th></tr></thead>
+            <tbody>
+              <tr><td>Prompt / Policy</td><td>固定 task suite A/B；rule-level diff；遵循率、拒绝率、格式正确率</td><td>同一 agent 在 held-out task 上比较 success/cost/safety</td><td>success、format adherence、safety violation、cost</td><td>prompt overfit、语义漂移、删掉安全约束</td></tr>
+              <tr><td>Memory / Experience</td><td>检索命中率、memory usefulness、raw vs consolidated ablation、temporal holdout</td><td>with-memory vs no-memory；old memory vs new memory；跨任务迁移</td><td>memory utility、retrieval precision、forgetting、step reduction</td><td>总结记忆变假；近期经验覆盖长期证据</td></tr>
+              <tr><td>Skill</td><td>skill contract tests、precondition tests、probe tasks、selection accuracy</td><td>skill bank ablation；composition tasks；unseen domain transfer</td><td>reuse rate、probe pass、composition success、retirement precision</td><td>单 skill 有效但组合冲突；重复/过期 skill 膨胀</td></tr>
+              <tr><td>Tool</td><td>wrapper contract tests、API error simulation、permission tests、latency/cost tests</td><td>tool-use benchmark；routing A/B；failure recovery tasks</td><td>tool success、invalid calls、recovery、latency、side-effect safety</td><td>绕开权限；错误恢复看似成功但状态污染</td></tr>
+              <tr><td>Workflow</td><td>节点/边 ablation；review loop contribution；parallel vs sequential 对照</td><td>WebArena、AppWorld、SWE-bench、GAIA 等整任务评测</td><td>task success、tokens、wall time、intervention、failure types</td><td>workflow 搜索过拟合；高成本换小幅准确率</td></tr>
+              <tr><td>Harness</td><td>trace attribution accuracy；layer fault injection；fixed-agent replay</td><td>固定 model，只换 harness，在 held-out env 上测迁移</td><td>held-out success、regression、cross-model transfer、trace coverage</td><td>把 prompt 问题误修成 harness；权限过宽</td></tr>
+              <tr><td>Evaluator / Reward</td><td>与人工评分相关性、校准、inter-rater reliability、adversarial judge test</td><td>用该 evaluator 驱动 evolution/RL，看真实 held-out performance</td><td>human correlation、Krippendorff alpha、reward hacking、FP/FN</td><td>evaluator 被 hack；固定 rubric 跨任务误评</td></tr>
+              <tr><td>Population</td><td>SelfEvo vs SocialEvo 同预算；知识流 ablation；specialization measurement</td><td>长任务流、多领域任务、竞争/协作环境</td><td>group gain、individual gain、diversity、transfer efficiency</td><td>群体共识放大错误；raw peer logs 噪声传染</td></tr>
+              <tr><td>Code / Architecture</td><td>patch-level tests、static checks、unit/integration tests、sandbox exploit tests</td><td>SWE-bench、Terminal-Bench、Polyglot 等 held-out benchmark</td><td>pass@1、regression、patch validity、archive diversity、cost/improvement</td><td>benchmark exploit；不可回滚；权限扩大</td></tr>
+              <tr><td>Fast Weights</td><td>update data quality、privacy filter、forgetting probe、rollback test</td><td>streaming tasks、regime shift tasks、同 context budget 对比 external memory</td><td>adaptation gain、forgetting、privacy leakage、stability</td><td>难解释、难归因、污染参数、隐私泄露</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5.3 统一实验设计</h3>
+        <div class="grid-2">
+          <article class="mini-card"><h4>必要对照组</h4><p>No-evolution、reflection-only、single-layer evolution、multi-layer evolution、oracle/human-designed upper bound、budget-matched baseline、held-out transfer、regression suite。</p></article>
+          <article class="mini-card"><h4>报告指标</h4><p>success / quality gain、cost and latency、regression rate、safety drift、failure mode shift、component attribution、跨任务/跨域/跨模型迁移、plateau 轮数、人工介入。</p></article>
+          <article class="mini-card"><h4>Self-evolving 特殊曲线</h4><p>performance over rounds、generalization gap、regression curve、cost per improvement、memory utility over time、archive health、safety drift。</p></article>
+          <article class="mini-card"><h4>最小判断标准</h4><p>单层能证明边际收益；组合后能证明端到端收益；多轮后不显著退化；held-out 仍提升；成本没有失控；安全和旧能力没有被破坏。</p></article>
+        </div>
+
+        <h3>5.4 可参考的 benchmark / 评测范式</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>评测需求</th><th>可参考工作</th><th>用法</th></tr></thead>
+            <tbody>
+              <tr><td>Agent benchmark 方法论</td><td><a href="https://arxiv.org/abs/2407.01502">AI Agents That Matter</a>, 2024</td><td>成本-准确率联合评估、holdout、防过拟合、可复现性。</td></tr>
+              <tr><td>通用 agent 能力</td><td>General AgentBench, 2026</td><td>统一环境里测 search、coding、reasoning、tool-use，并观察 test-time scaling 限制。</td></tr>
+              <tr><td>软件工程 agent</td><td>SWE-bench / SWE-bench Verified、<a href="https://arxiv.org/abs/2405.15793">SWE-agent</a></td><td>代码修复、真实 repo、patch correctness、agent-computer interface。</td></tr>
+              <tr><td>Web / App agent</td><td>WebArena、AppWorld、<a href="https://arxiv.org/abs/2402.05930">WebLINX</a></td><td>长程交互、工具/API 使用、多轮导航、状态变化。</td></tr>
+              <tr><td>GUI / OS agent</td><td>OSWorld、AndroidWorld、MacArena、OpenComputer</td><td>真实或可验证软件环境、状态检查、OS-level side effects。</td></tr>
+              <tr><td>Harness 评测</td><td><a href="https://arxiv.org/abs/2606.06324">HarnessFix</a>、Life-Harness</td><td>固定 model，评估 harness 修复带来的 held-out 迁移与 regression。</td></tr>
+              <tr><td>Judge / reward 评测</td><td>AJ-Bench、AdaRubric、OS-Themis</td><td>judge 是否能主动取证、逐步评分、和人工一致、能否给 RL 稠密信号。</td></tr>
+              <tr><td>Multi-agent 进化评测</td><td>SAGE、<a href="https://arxiv.org/abs/2605.11136">EVOCHAMBER</a></td><td>SelfEvo vs SocialEvo 同预算对照、知识流和 specialization ablation。</td></tr>
+              <tr><td>Memory 进化风险</td><td><a href="https://arxiv.org/abs/2605.12978">Useful Memories Become Faulty</a></td><td>raw episode vs consolidation、持续更新是否导致记忆退化。</td></tr>
+              <tr><td>Verifiable environments</td><td>CUA-Gym、OpenComputer、PhoneWorld</td><td>合成可验证任务、自动 reward、环境状态检查，适合 RLVR 和 self-evolution。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">Practical Recipe</div>
+          <ol>
+            <li>先冻结 model 和 harness，只开放一个进化层，跑 3-5 轮。</li>
+            <li>每轮保存完整 event log：输入、输出、工具调用、状态、错误、修改 diff、验证结果。</li>
+            <li>每轮跑 evolution set、held-out set、regression/safety set。</li>
+            <li>每个候选修改必须有 component-level tests。</li>
+            <li>每轮做 ablation：新 memory/skill/workflow 打开和关闭各跑一次。</li>
+            <li>最后再开放多层共同进化，观察协同收益或互相破坏。</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="questions">
+        <h2>6. 关键问题清单</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>层</th><th>自动修改</th><th>自动建议 + 人审</th><th>禁止自动改</th></tr></thead>
+            <tbody>
+              <tr><td>task prompt / local strategy</td><td>可以</td><td>-</td><td>-</td></tr>
+              <tr><td>skill 描述 / skill code</td><td>可以，但需测试</td><td>高风险工具相关需人审</td><td>-</td></tr>
+              <tr><td>tool wrapper</td><td>低风险可自动</td><td>权限、外部副作用需人审</td><td>secret / auth / payment 边界</td></tr>
+              <tr><td>workflow</td><td>可自动候选</td><td>上线需验证</td><td>-</td></tr>
+              <tr><td>harness</td><td>小修可候选</td><td>大多需人审</td><td>root governance</td></tr>
+              <tr><td>evaluator</td><td>可候选</td><td>需校准集验证</td><td>gold labels 不可被 agent 改写</td></tr>
+              <tr><td>model weights</td><td>研究 / 沙盒</td><td>生产需严格审批</td><td>私密数据无审计训练</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-2">
+          <article class="mini-card"><h4>进化信号来自哪里</h4><p><span class="tag">环境反馈</span><span class="tag coral">轨迹证据</span><span class="tag gold">LLM critic</span><span class="tag violet">人类反馈</span><span class="tag cyan">群体反馈</span></p><p>最佳系统会混合信号并做 attribution，而不是把最终分数直接塞给 prompt optimizer。</p></article>
+          <article class="mini-card"><h4>如何避免越进化越差</h4><p>保留 raw episode、held-out validation、regression suite、bounded edit space、rollback + versioning。</p></article>
+          <article class="mini-card"><h4>如何避免 reward hacking</h4><p>proposer 与 verifier 分离；evaluator 有校准集；多 evaluator 交叉验证；隐藏集或轮换集；保留人工 spot check。</p></article>
+          <article class="mini-card"><h4>如何评估 self-evolving</h4><p>看 learning curve、held-out transfer、compute-normalized improvement、regression rate、skill reuse、memory utility、safety drift、human intervention rate。</p></article>
+        </div>
+      </section>
+
+      <section id="blueprint">
+        <h2>7. 当前最佳工程蓝图</h2>
+        <p class="lede">如果今天要设计一个前沿但可控的 self-evolving agent，可以从这七层开始。不要一开始就做“agent 改自己代码”；先让 memory、skill、workflow、evaluator、harness adapter 进化。</p>
+        <div class="blueprint">
+          <article class="layer-card"><h4>1. Immutable Core</h4><ul><li>root safety policy</li><li>permission boundary</li><li>secret handling</li><li>sandbox rules</li><li>evaluator separation</li></ul></article>
+          <article class="layer-card"><h4>2. Agent Runtime</h4><ul><li>planner</li><li>executor</li><li>tool router</li><li>memory retriever</li><li>verifier</li><li>reviewer</li></ul></article>
+          <article class="layer-card"><h4>3. Evolvable Objects</h4><ul><li>policy rules</li><li>skill bank</li><li>tool wrappers</li><li>workflow graph</li><li>memory index</li><li>harness adapters</li></ul></article>
+          <article class="layer-card"><h4>4. Evidence Layer</h4><ul><li>append-only event log</li><li>raw trajectories</li><li>tool call records</li><li>observations</li><li>model I/O</li><li>human feedback</li></ul></article>
+          <article class="layer-card"><h4>5. Evolution Engine</h4><ul><li>failure attribution</li><li>candidate proposal</li><li>typed edit operators</li><li>MCTS / archive search</li><li>validation scheduler</li><li>version manager</li></ul></article>
+          <article class="layer-card"><h4>6. Evaluation Layer</h4><ul><li>task benchmarks</li><li>probe tasks</li><li>regression suite</li><li>safety suite</li><li>cost / latency suite</li><li>deterministic tests</li></ul></article>
+          <article class="layer-card"><h4>7. Governance Layer</h4><ul><li>approval workflow</li><li>rollout policy</li><li>rollback</li><li>audit dashboard</li><li>anomaly detection</li></ul></article>
+        </div>
+        <div class="callout">
+          <div class="callout-title">MVP</div>
+          <ol>
+            <li><strong>Raw trajectory log + failure taxonomy：</strong>先知道失败在哪里。</li>
+            <li><strong>Skill / prompt typed edit + regression validation：</strong>先让小范围对象进化。</li>
+            <li><strong>Archive + retrieval：</strong>让有效经验能被复用，而不是每次从零开始。</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="trends">
+        <h2>8. 研究前沿趋势判断</h2>
+        <div class="grid-3">
+          <article class="paper-card"><h4>从 prompt evolution 到 system evolution</h4><p>2023 的主角是 prompt/reflection；2024-2026 的主角变成 agentic system design、workflow code、harness、archive、population。</p></article>
+          <article class="paper-card"><h4>从单 agent memory 到 population memory</h4><p>multi-agent 系统可以进化团队结构、知识流和 specialization，这是单 agent 不具备的新能力。</p></article>
+          <article class="paper-card"><h4>从自由文本总结到结构化经验管理</h4><p>未来的 agent memory 更像数据库、版本系统、证据图，而不是聊天记录摘要。</p></article>
+          <article class="paper-card"><h4>Evaluator 成为瓶颈和攻击面</h4><p>谁来判断“变好了”决定了 evolution 的上限，也决定了 reward hacking 的入口。</p></article>
+          <article class="paper-card"><h4>Harness 会成为产品护城河</h4><p>同一个模型，换不同 harness，能力差距会很大。好的 harness 可诊断、可回放、可验证、可治理。</p></article>
+          <article class="paper-card"><h4>开放但有边界</h4><p>最可能落地的是不可变 core + 可进化插件层 + 审计日志 + 自动验证 + 人类审批。</p></article>
+        </div>
+      </section>
+
+      <section id="reading">
+        <h2>9. 推荐继续深读顺序</h2>
+        <div class="reading-list">
+          <a class="reading-item" href="https://arxiv.org/abs/2505.22954"><span><strong>Darwin Godel Machine</strong><span>2025-2026：自修改 agent 的最前沿形态。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2408.08435"><span><strong>Automated Design of Agentic Systems</strong><span>2024：ADAS 和 Meta Agent Search 的概念框架。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2410.10762"><span><strong>AFlow</strong><span>2024-2025：workflow 如何作为代码被搜索。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2606.06324"><span><strong>HarnessFix</strong><span>2026：harness 如何被诊断和修复。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2606.06741"><span><strong>OpenSkill</strong><span>2026：没有 gold answer 时如何自举 skill 和 verifier。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2606.01314"><span><strong>SkillSmith</strong><span>2026：skill-tool co-evolution。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2605.11136"><span><strong>EVOCHAMBER</strong><span>2026：multi-agent co-evolution 的三层结构。</span></span></a>
+          <a class="reading-item" href="https://arxiv.org/abs/2605.12978"><span><strong>Useful Memories Become Faulty</strong><span>2026：memory evolution 的反直觉失败。</span></span></a>
+        </div>
+      </section>
+
+      <section id="definition">
+        <h2>10. 定义与 Checklist</h2>
+        <div class="callout">
+          <div class="callout-title">English</div>
+          <p>A self-evolving agent is an agentic system that uses evidence from its own or peers' trajectories to propose, validate, archive, and deploy bounded modifications to one or more explicit system components, such that future behavior improves under held-out evaluation without requiring manual redesign of those components.</p>
+        </div>
+        <div class="callout">
+          <div class="callout-title">中文</div>
+          <p>Self-evolving agent 是一种能从自身或群体运行轨迹中提取证据，对明确的系统组件提出有边界的修改，并通过验证、归档、部署来改变未来行为的 agent 系统；它的关键不是“会反思”，而是“有可修改对象、可验证信号、可回滚版本和长期复用机制”。</p>
+        </div>
+        <h3>最简 Checklist</h3>
+        <p class="lede">如果这些问题答不上来，它更可能只是 reflective agent，不是成熟的 self-evolving agent。</p>
+        <div class="checklist">
+          <div class="check"><span>1</span><span>它到底改了什么？prompt、memory、skill、tool、workflow、harness、evaluator、代码、参数，还是只是重新生成答案？</span></div>
+          <div class="check"><span>2</span><span>修改依据是什么？最终分数、轨迹证据、错误归因、人工反馈、peer history？</span></div>
+          <div class="check"><span>3</span><span>修改空间是否有类型和边界？</span></div>
+          <div class="check"><span>4</span><span>是否保留原始轨迹，而不是只保留总结？</span></div>
+          <div class="check"><span>5</span><span>是否有独立 verifier / held-out eval / regression suite？</span></div>
+          <div class="check"><span>6</span><span>是否有 archive，而不是只保留当前最好版本？</span></div>
+          <div class="check"><span>7</span><span>是否能跨任务迁移，而不是只修某一道题？</span></div>
+          <div class="check"><span>8</span><span>是否记录失败模式和反例？</span></div>
+          <div class="check"><span>9</span><span>是否能回滚？</span></div>
+          <div class="check"><span>10</span><span>是否有安全边界和人工介入点？</span></div>
+        </div>
+      </section>
+
+      <div class="footer">
+        <p>Source: research/self-evolving-agents/self-evolving-agent-frontier-2026.md · HTML generated for quick reading.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
