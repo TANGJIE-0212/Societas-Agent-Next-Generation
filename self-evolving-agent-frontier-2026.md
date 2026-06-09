@@ -81,7 +81,35 @@ instrumented trajectories
 | GUI reward critic | OS-Themis, 2026, https://arxiv.org/abs/2603.19191 | reward / critic framework | 分解轨迹为可验证 milestones，多 agent critic 审计证据链 | reward model 不是一句 judge prompt，而是证据链与里程碑验证 |
 | Human-like oversight | ANCHOR, 2026, https://arxiv.org/abs/2606.06114 | oversight phase / intervention policy | 在 evolution 的不同阶段插入人类式监督 | 最有效干预点往往是 output verification，不是每一步都管 |
 
-### 1.5 Prompt / Policy 进化的背景线
+### 1.5 业内 Agent 壳层自净化案例
+
+这里不再重点看模型 checkpoint 或参数训练，而是看 Infra 团队更能复用的外壳层自升级：trace、harness、tool、memory、skill、workflow、sandbox、connector 和 verifier。判断标准也很简单：它改的是不是 agent 壳层对象，以及有没有用 eval、A/B、regression 或 benchmark 证明改完更好。
+
+#### 直接相关：Trace / Harness / Tool / Skill / Memory 自净化
+
+| 案例 | 壳层升级对象 | 公开证据 | Societas 可复用点 |
+|---|---|---|---|
+| HarnessFix, https://arxiv.org/abs/2606.06324 | Harness 层：执行环境、工具接口、上下文装配、生命周期编排、observability、verification、governance | 把 raw trace 和 harness code 编译成 Harness-aware Trace IR，定位失败步骤和 harness layer，再生成 scoped repair；在 SWE-Bench Verified、Terminal-Bench 2.0 Verified、GAIA、AppWorld 上 held-out performance 提升 15.2% - 50.0% | 最贴近 Societas Infra：从失败轨迹自动归因到 memory / tool / workflow / verifier / harness，再生成可验证修复候选 |
+| Anthropic / Claude Code Tool Optimization, https://www.anthropic.com/engineering/writing-tools-for-agents | MCP / tool 设计：tool schema、description、namespacing、返回格式、错误提示、pagination、truncation | 用真实复杂任务构造 held-out tool eval；用 Claude Code 分析 transcripts 并改工具。Anthropic 明确说 tool 描述和返回格式的小改动能显著提升 tool-use 表现，甚至内部工具超过 expert-written baseline | 适合 Societas 的 browser / Office / SaaS connector：让 agent 基于 trace 发现工具误用、参数错误、返回太吵，再提出 wrapper 或 tool policy patch |
+| Cursor Agent Sandbox, https://cursor.com/blog/agent-sandboxing | 执行边界和 shell tool：sandbox policy、Shell tool 描述、权限升级提示、tool result rendering | Cursor 把 sandbox 约束显式写入 Shell tool 描述，并在失败结果里说明是哪条 sandbox constraint 导致失败；sandboxed agents stop 40% less，offline eval 显示 sandbox-related recovery 改善 | Societas 的 browser-operator 和文件/系统工具也需要“可行动错误”：失败结果不只是报错，而要告诉 agent 下一步该请求权限、换工具还是走 recovery branch |
+| Cursor Semantic Search, https://cursor.com/blog/semsearch | Retrieval tool / indexing pipeline：semantic search、embedding model、search strategy、trace-derived retrieval training data | 用 agent sessions 反推“哪些代码本该更早被检索”，训练自定义 embedding；offline accuracy 平均 +12.5%，A/B 中 large codebase code retention +2.6%，无 semantic search 时 dissatisfied follow-up +2.2% | Societas 可以把 trace 用来升级检索层：用户最后引用了哪些文件、表格、网页、CRM 记录，就反推下一次应该更早召回什么 |
+| Letta Skill Learning, https://www.letta.com/blog/skill-learning | Skill 文件：从 trajectory 和 verifier feedback 生成 `.md` skill，记录方法、坑点、验证策略和可复用步骤 | Terminal Bench 2.0 上，trajectory-only skills 带来 21.1% relative / 9% absolute 提升；加入 verifier textual feedback 后提升 36.8% relative / 15.7% absolute，同时成本 -15.7%、tool calls -10.4% | 非常适合 Societas vertical skills：从成功/失败任务轨迹沉淀 PPT、Excel、browser-operator、CRM、research brief 等技能卡 |
+| Letta Context Repositories / Sleep-time Agents, https://www.letta.com/blog/context-repositories, https://www.letta.com/blog/sleep-time-compute | Memory / context repo：git-backed memory filesystem、frontmatter、progressive disclosure、memory reflection、defragmentation、subagent merge | Context Repositories 让每次 memory 变化有 git versioning 和 commit message；sleep-time agent 在后台整理 primary agent 的 learned context。Letta 还报告 Letta Filesystem 在 LoCoMo 74.0%、Terminal-Bench 42.5% | Societas memory 不应只是黑盒向量库；更应像 repo：可 diff、可 rollback、可并发整理、可把重要记忆 pin 到 system context |
+| Mem0, https://mem0.ai/research | Memory infra：agent memory extraction、update、compression、multi-signal retrieval、cross-session structure | Mem0 Research 报告 LoCoMo 92.5、LongMemEval 94.4、BEAM 1M 64.1 / 10M 48.6，平均每次 retrieval 低于 7k tokens；强调 agent-generated facts 也作为一等记忆 | 可作为 Societas persistent memory 的工程参照：用户偏好、任务 SOP、失败模式、历史案例和 agent 产出的事实都要进入可治理记忆层 |
+
+#### 产品实践：Playbook、Web Agent 与企业 Agent Shell
+
+| 案例 | 壳层能力 | 公开证据 | Societas 可复用点 |
+|---|---|---|---|
+| Devin Playbooks / Session Insights, https://www.cognition.ai/blog/how-cognition-uses-devin-to-build-devin | Playbook、Ask Devin、Auto Review、Autofix、Bug triage、Session Insights、MCP Marketplace | Cognition 称内部用 Devin 建 Devin，一周 merge 659 个 Devin PR；Session Insights 会分析完成任务后的技术问题、沟通 gap、scope creep、timeline，并给出 improved prompt suggestions | 更像 workflow memory：把重复任务沉淀成 playbook，任务后生成 next-run hints。Societas 可做 session insight -> workflow checklist / skill update |
+| ChatGPT Agent / Operator, https://openai.com/index/introducing-chatgpt-agent/, https://openai.com/index/introducing-operator/ | Virtual computer、visual browser、text browser、terminal、connectors、takeover mode、watch mode、confirmation gates | 公开了 SpreadsheetBench、BrowseComp、WebArena 等 agentic eval；Operator / ChatGPT Agent 强调用户确认、prompt injection monitor、浏览数据控制和可中断工作流 | 不是壳层自升级，但 shell 设计很完整。Societas 可借鉴 browser takeover、watch mode、high-risk action confirmation 和 connector 权限设计 |
+| Kimi K2 / Kimi Researcher, https://moonshotai.github.io/Kimi-K2/ | Tool use、MCP、IPython、命令执行、agentic coding framework、长上下文 | Kimi K2 报告 SWE-bench Verified、Tau2、AceBench、TerminalBench 等 agentic/tool-use 指标；网页示例展示多轮 IPython、搜索、浏览、编辑、部署 | 更偏 agentic model + tool-use 能力，不是公开的壳层自净化。可作为国产 agentic benchmark 对照，不宜当作 shell evolution 证据 |
+| Mistral Agents / Le Chat Enterprise, https://docs.mistral.ai/capabilities/agents/, https://mistral.ai/news/le-chat-enterprise | Agents API、persistent state、built-in tools、connectors、MCP servers、agent handoff、document library、stored memories、audit logging | 公开文档说明 agents 可持久状态、多 agent handoff、内置 websearch/code interpreter/document library、MCP connectors 和 human-in-the-loop confirmation；Le Chat Enterprise 提到 stored memories 和 feedback loops | 适合参考 enterprise agent shell：connector lifecycle、MCP tool registration、handoff、audit log、ACL 和 human confirmation |
+| Manus / Genspark / Perplexity Computer | Web/browser operator、AI workspace、slides/docs/sheets、research、computer tasks、connectors | 公开资料更多是产品能力和 workspace 形态，能做 browser operator、deliverable generation 和 long-running tasks，但很少公开 trace -> update -> eval 的自升级细节 | 可作为 Societas 1.0 / 2.0 产品形态参照；不应作为 self-evolution 证据，除非后续公开 memory/tool/workflow 的自净化机制 |
+
+**Infra takeaway**：Societas 3.0 的主线应是 Agent Shell Self-purification：基于真实轨迹净化 memory、skill、tool、workflow、verifier 和 harness，而不是先做模型参数自升级。
+
+### 1.6 Prompt / Policy 进化的背景线
 
 这些工作多在 2022-2024，但仍是后续 self-evolving agent 的基础模块：
 
@@ -728,35 +756,155 @@ held-out 上仍提升
 
 ---
 
-## 7. 研究前沿趋势判断
+## 7. 可以 Show 的 Demo：QBR Pack 自升级
 
-### 趋势 1：从 prompt evolution 到 system evolution
+如果要让用户在 5 分钟内理解 self-evolving agent 的价值，最好的 demo 不是“agent 说自己学会了”，而是展示同一类真实工作流在两轮执行之间发生了可解释、可验证、可量化的改进。
 
-2023 的主角是 prompt/reflection；2024-2026 的主角变成 agentic system design、workflow code、harness、archive、population。
+核心故事：**Societas 不只是完成一次任务，而是把每次任务变成下一次更可靠的工作能力。**
 
-### 趋势 2：从单 agent memory 到 population memory
+### 三个可以展示的 Demo
 
-单 agent 只能学自己的经验。multi-agent 系统可以进化团队结构、知识流和 specialization，这是单 agent 不具备的新能力。
+| Demo | 适合证明什么 | 展示亮点 |
+|---|---|---|
+| Demo 1：QBR Pack 自升级 | 端到端 information work：browser + Office artifacts + verifier + before / after score | 最推荐，最能同时讲 Societas 1.0 / 2.0 / 3.0 |
+| Demo 2：Browser Operator 自升级 | tool policy、post-check、human approval gate、workflow recovery | 真实系统操作有冲击力，适合证明 agent 壳层更稳 |
+| Demo 3：Skill Learning 自升级 | 从轨迹沉淀 vertical skill，第二次同类任务更快更少返工 | 适合讲 “vertical skills from co-creation” |
 
-### 趋势 3：从自由文本总结到结构化经验管理
+### Demo 1：客户周报 / QBR Pack 自升级
 
-raw logs、experience tree、anti-pattern、skill topology、trace IR 变得越来越重要。未来的 agent memory 更像数据库/版本系统/证据图，而不是聊天记录摘要。
+输入来自：
 
-### 趋势 4：evaluator 成为瓶颈和攻击面
+- CRM / SaaS 页面。
+- Excel / CSV 数据。
+- 网页或文档资料。
+- 用户格式偏好。
 
-谁来判断“变好了”决定了 evolution 的上限。2026 的很多工作都在补 verifier、critic、oversight、benchmark rewriting、milestone reward。
+执行动作：
 
-### 趋势 5：harness 会成为 agent 产品的护城河
+- Browser-operator 取数、更新状态、验证保存。
+- Office generator 生成 PPT、Excel 附表和 Word brief。
+- Verifier 检查文件、公式、引用、CRM 状态和用户偏好。
 
-同一个模型，换不同 harness，能力差距会很大。好的 harness 提供可诊断、可回放、可验证、可治理的运行环境；差的 harness 只是在 while loop 里调用 LLM。
+输出结果：
 
-### 趋势 6：self-evolution 会走向“开放但有边界”
+- 一套可编辑 QBR / 周报包。
+- Run replay。
+- Failure attribution。
+- Evolution patch。
+- Before / after scorecard。
 
-完全无边界自我修改风险太大。最可能落地的是：不可变 core + 可进化插件层 + 审计日志 + 自动验证 + 人类审批。
+### Demo 剧情
+
+```text
+1. First Run
+   普通 agent 完成任务，但 PPT 偏好不匹配、Excel 字段映射错、CRM 保存未验证、引用覆盖不足。
+
+2. Scorecard
+   Verifier 给出分数和失败证据，不靠 agent 自称完成。
+
+3. Attribution
+   把失败归因到 memory、skill、workflow、tool policy 和 verifier。
+
+4. Evolution Patch
+   生成有类型的升级候选，用户审批后进入版本库。
+
+5. Second Run
+   同类任务再次执行，分数、人工介入、工具调用和返工明显改善。
+```
+
+### 展示分数变化
+
+| 指标 | 第一次执行 | 自升级后第二次 | 用户能感知到什么 |
+|---|---:|---:|---|
+| Overall score | 68 | 93 | 不是“看起来更聪明”，而是端到端质量显著提升 |
+| CRM state success | 60 | 100 | 保存后新增状态验证，少掉隐性失败 |
+| User preference match | 55 | 92 | 记住并复用 executive-summary-first、一页一结论等偏好 |
+| Manual correction count | 8 | 1 | 用户返工减少，协作体验更像 coworker |
+| Tool calls | 46 | 31 | skill / workflow 生效后少走弯路 |
+| Time to accepted deliverable | 18 min | 9 min | 同类任务第二次更快完成 |
+
+### Evolution Patch 示例
+
+```diff
++ Memory patch: user prefers executive-summary-first QBR decks
++ Skill card: weekly_business_review_pack
++ Workflow checkpoint: verify CRM saved timestamp after browser save
++ Tool policy: browser.save_record requires toast + record timestamp post-check
++ Verifier note: add citation coverage and Excel formula recalculation checks
+```
+
+这个 demo 的 fancy 点不是聊天窗口，而是四个可视化面板：Run Replay、Failure Attribution、Evolution Patch、Before / After Scoreboard。
+
+### Demo 2：Browser Operator 自升级
+
+这个 demo 的冲击力来自“真实系统操作”：agent 第一次在 CRM / ServiceNow / 飞书表格里更新记录时踩坑，第二次因为 tool policy 和 workflow checkpoint 升级而明显更稳。
+
+第一轮失败点：
+
+- 点了保存但没有确认成功。
+- 字段填错。
+- 页面状态还没稳定就继续下一步。
+- 外发邮件前没有 human approval。
+
+自升级内容：
+
+```diff
++ Workflow: save-and-verify after CRM update
++ Tool policy: browser.save_record requires toast + timestamp post-check
++ Memory: field mapping for this CRM task family
++ Human approval gate: external email send / submit action
++ Recovery branch: retry after page stable or ask user to take over
+```
+
+展示分数：
+
+| 指标 | 第一次执行 | 自升级后第二次 | 证明了什么 |
+|---|---:|---:|---|
+| Form field accuracy | 76 | 98 | field mapping memory 和页面读取策略生效 |
+| Save verified | No | Yes | 不再把“点了保存”当作“保存成功” |
+| Repeated browser actions | 12 | 3 | workflow checkpoint 和等待策略减少无效操作 |
+| Approval compliance | 60 | 100 | 高风险外发动作进入 human approval gate |
+
+### Demo 3：Skill Learning 自升级
+
+这个 demo 最适合展示 “vertical skills from co-creation”：第一次做复杂 Excel 分析或 PPT 模板化任务时，agent 走了很多弯路；任务结束后从轨迹和 verifier feedback 生成 skill card，第二次同类任务直接调用技能。
+
+Demo 结构：
+
+```text
+No Skill
+   -> agent 靠通用规划完成任务，工具调用多、错误恢复慢、用户修正多
+
+Learned Skill Card
+   -> intent / preconditions / steps / required tools / validation probes / failure modes / examples / source_runs
+
+With Skill
+   -> 第二次同类任务少检索、少试错、少返工，verifier 更早介入
+```
+
+展示分数：
+
+| 指标 | No Skill | With Learned Skill | 证明了什么 |
+|---|---:|---:|---|
+| Task score | 71 | 92 | skill 不是文档沉淀，而是能提升端到端任务质量 |
+| Tool calls | 42 | 21 | 可复用步骤减少探索成本 |
+| User corrections | 6 | 1 | 失败模式和验证策略被复用 |
+| Cost | 1.00x | 0.72x | skill 让同类任务更便宜 |
 
 ---
 
-## 8. 推荐继续深读顺序
+## 8. 趋势判断与深读顺序
+
+### 8.1 研究前沿趋势判断
+
+1. **从 prompt evolution 到 system evolution**：2023 的主角是 prompt/reflection；2024-2026 的主角变成 agentic system design、workflow code、harness、archive、population。
+2. **从单 agent memory 到 population memory**：multi-agent 系统可以进化团队结构、知识流和 specialization，这是单 agent 不具备的新能力。
+3. **从自由文本总结到结构化经验管理**：未来的 agent memory 更像数据库、版本系统、证据图，而不是聊天记录摘要。
+4. **Evaluator 成为瓶颈和攻击面**：谁来判断“变好了”决定了 evolution 的上限，也决定了 reward hacking 的入口。
+5. **Harness 会成为产品护城河**：同一个模型，换不同 harness，能力差距会很大。好的 harness 可诊断、可回放、可验证、可治理。
+6. **开放但有边界**：最可能落地的是不可变 core + 可进化插件层 + 审计日志 + 自动验证 + 人类审批。
+
+### 8.2 推荐继续深读顺序
 
 如果只读 8 篇，我建议按这个顺序：
 

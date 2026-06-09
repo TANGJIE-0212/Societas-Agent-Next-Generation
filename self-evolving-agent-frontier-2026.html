@@ -621,13 +621,14 @@
         <a href="#summary">0. 一句话结论</a>
         <a href="#objects">1. 可进化对象</a>
         <a href="#papers">2. 论文地图</a>
+        <a href="#industry-cases">2.5 壳层案例</a>
         <a href="#framework">3. 总框架</a>
         <a href="#patterns">4. 最佳范式</a>
         <a href="#evaluation">5. 评测方法</a>
         <a href="#questions">6. 关键问题</a>
         <a href="#blueprint">7. 工程蓝图</a>
-        <a href="#trends">8. 趋势判断</a>
-        <a href="#reading">9. 深读顺序</a>
+        <a href="#demo">8. Demo 方案</a>
+        <a href="#trends-reading">9. 趋势与深读</a>
         <a href="#definition">10. 定义与 Checklist</a>
       </nav>
     </aside>
@@ -728,6 +729,46 @@
               <tr><td>Human-like oversight</td><td><a href="https://arxiv.org/abs/2606.06114">ANCHOR</a>, 2026</td><td>oversight phase / intervention policy</td><td>在 evolution 的不同阶段插入人类式监督</td><td>最有效干预点往往是 output verification，不是每一步都管。</td></tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section id="industry-cases">
+        <h2>2.5 业内 Agent 壳层自净化案例</h2>
+        <p class="lede">这里不再重点看模型 checkpoint 或参数训练，而是看 Infra 团队更能复用的外壳层自升级：trace、harness、tool、memory、skill、workflow、sandbox、connector 和 verifier。判断标准也很简单：它改的是不是 agent 壳层对象，以及有没有用 eval、A/B、regression 或 benchmark 证明改完更好。</p>
+
+        <h3>直接相关：Trace / Harness / Tool / Skill / Memory 自净化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>案例</th><th>壳层升级对象</th><th>公开证据</th><th>Societas 可复用点</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://arxiv.org/abs/2606.06324">HarnessFix</a></td><td>Harness 层：执行环境、工具接口、上下文装配、生命周期编排、observability、verification、governance。</td><td>把 raw trace 和 harness code 编译成 Harness-aware Trace IR，定位失败步骤和 harness layer，再生成 scoped repair；在 SWE-Bench Verified、Terminal-Bench 2.0 Verified、GAIA、AppWorld 上 held-out performance 提升 15.2% - 50.0%。</td><td>最贴近 Societas Infra：从失败轨迹自动归因到 memory / tool / workflow / verifier / harness，再生成可验证修复候选。</td></tr>
+              <tr><td><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Anthropic / Claude Code Tool Optimization</a></td><td>MCP / tool 设计：tool schema、description、namespacing、返回格式、错误提示、pagination、truncation。</td><td>用真实复杂任务构造 held-out tool eval；用 Claude Code 分析 transcripts 并改工具。Anthropic 明确说 tool 描述和返回格式的小改动能显著提升 tool-use 表现，甚至内部工具超过 expert-written baseline。</td><td>适合 Societas 的 browser / Office / SaaS connector：让 agent 基于 trace 发现工具误用、参数错误、返回太吵，再提出 wrapper 或 tool policy patch。</td></tr>
+              <tr><td><a href="https://cursor.com/blog/agent-sandboxing">Cursor Agent Sandbox</a></td><td>执行边界和 shell tool：sandbox policy、Shell tool 描述、权限升级提示、tool result rendering。</td><td>Cursor 把 sandbox 约束显式写入 Shell tool 描述，并在失败结果里说明是哪条 sandbox constraint 导致失败；sandboxed agents stop 40% less，offline eval 显示 sandbox-related recovery 改善。</td><td>Societas 的 browser-operator 和文件/系统工具也需要“可行动错误”：失败结果不只是报错，而要告诉 agent 下一步该请求权限、换工具还是走 recovery branch。</td></tr>
+              <tr><td><a href="https://cursor.com/blog/semsearch">Cursor Semantic Search</a></td><td>Retrieval tool / indexing pipeline：semantic search、embedding model、search strategy、trace-derived retrieval training data。</td><td>用 agent sessions 反推“哪些代码本该更早被检索”，训练自定义 embedding；offline accuracy 平均 +12.5%，A/B 中 large codebase code retention +2.6%，无 semantic search 时 dissatisfied follow-up +2.2%。</td><td>Societas 可以把 trace 用来升级检索层：用户最后引用了哪些文件、表格、网页、CRM 记录，就反推下一次应该更早召回什么。</td></tr>
+              <tr><td><a href="https://www.letta.com/blog/skill-learning">Letta Skill Learning</a></td><td>Skill 文件：从 trajectory 和 verifier feedback 生成 `.md` skill，记录方法、坑点、验证策略和可复用步骤。</td><td>Terminal Bench 2.0 上，trajectory-only skills 带来 21.1% relative / 9% absolute 提升；加入 verifier textual feedback 后提升 36.8% relative / 15.7% absolute，同时成本 -15.7%、tool calls -10.4%。</td><td>非常适合 Societas vertical skills：从成功/失败任务轨迹沉淀 PPT、Excel、browser-operator、CRM、research brief 等技能卡。</td></tr>
+              <tr><td><a href="https://www.letta.com/blog/context-repositories">Letta Context Repositories</a> / <a href="https://www.letta.com/blog/sleep-time-compute">Sleep-time Agents</a></td><td>Memory / context repo：git-backed memory filesystem、frontmatter、progressive disclosure、memory reflection、defragmentation、subagent merge。</td><td>Context Repositories 让每次 memory 变化有 git versioning 和 commit message；sleep-time agent 在后台整理 primary agent 的 learned context。Letta 还报告 Letta Filesystem 在 LoCoMo 74.0%、Terminal-Bench 42.5%。</td><td>Societas memory 不应只是黑盒向量库；更应像 repo：可 diff、可 rollback、可并发整理、可把重要记忆 pin 到 system context。</td></tr>
+              <tr><td><a href="https://mem0.ai/research">Mem0</a></td><td>Memory infra：agent memory extraction、update、compression、multi-signal retrieval、cross-session structure。</td><td>Mem0 Research 报告 LoCoMo 92.5、LongMemEval 94.4、BEAM 1M 64.1 / 10M 48.6，平均每次 retrieval 低于 7k tokens；强调 agent-generated facts 也作为一等记忆。</td><td>可作为 Societas persistent memory 的工程参照：用户偏好、任务 SOP、失败模式、历史案例和 agent 产出的事实都要进入可治理记忆层。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>产品实践：Playbook、Web Agent 与企业 Agent Shell</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>案例</th><th>壳层能力</th><th>公开证据</th><th>Societas 可复用点</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://www.cognition.ai/blog/how-cognition-uses-devin-to-build-devin">Devin Playbooks / Session Insights</a></td><td>Playbook、Ask Devin、Auto Review、Autofix、Bug triage、Session Insights、MCP Marketplace。</td><td>Cognition 称内部用 Devin 建 Devin，一周 merge 659 个 Devin PR；Session Insights 会分析完成任务后的技术问题、沟通 gap、scope creep、timeline，并给出 improved prompt suggestions。</td><td>更像 workflow memory：把重复任务沉淀成 playbook，任务后生成 next-run hints。Societas 可做 session insight -> workflow checklist / skill update。</td></tr>
+              <tr><td><a href="https://openai.com/index/introducing-chatgpt-agent/">ChatGPT Agent</a> / <a href="https://openai.com/index/introducing-operator/">Operator</a></td><td>Virtual computer、visual browser、text browser、terminal、connectors、takeover mode、watch mode、confirmation gates。</td><td>公开了 SpreadsheetBench、BrowseComp、WebArena 等 agentic eval；Operator / ChatGPT Agent 强调用户确认、prompt injection monitor、浏览数据控制和可中断工作流。</td><td>不是壳层自升级，但 shell 设计很完整。Societas 可借鉴 browser takeover、watch mode、high-risk action confirmation 和 connector 权限设计。</td></tr>
+              <tr><td><a href="https://moonshotai.github.io/Kimi-K2/">Kimi K2 / Kimi Researcher</a></td><td>Tool use、MCP、IPython、命令执行、agentic coding framework、长上下文。</td><td>Kimi K2 报告 SWE-bench Verified、Tau2、AceBench、TerminalBench 等 agentic/tool-use 指标；网页示例展示多轮 IPython、搜索、浏览、编辑、部署。</td><td>更偏 agentic model + tool-use 能力，不是公开的壳层自净化。可作为国产 agentic benchmark 对照，不宜当作 shell evolution 证据。</td></tr>
+              <tr><td><a href="https://docs.mistral.ai/capabilities/agents/">Mistral Agents</a> / <a href="https://mistral.ai/news/le-chat-enterprise">Le Chat Enterprise</a></td><td>Agents API、persistent state、built-in tools、connectors、MCP servers、agent handoff、document library、stored memories、audit logging。</td><td>公开文档说明 agents 可持久状态、多 agent handoff、内置 websearch/code interpreter/document library、MCP connectors 和 human-in-the-loop confirmation；Le Chat Enterprise 提到 stored memories 和 feedback loops。</td><td>适合参考 enterprise agent shell：connector lifecycle、MCP tool registration、handoff、audit log、ACL 和 human confirmation。</td></tr>
+              <tr><td><a href="https://manus.im/">Manus</a> / <a href="https://genspark.ai/">Genspark</a> / <a href="https://www.perplexity.ai/">Perplexity Computer</a></td><td>Web/browser operator、AI workspace、slides/docs/sheets、research、computer tasks、connectors。</td><td>公开资料更多是产品能力和 workspace 形态，能做 browser operator、deliverable generation 和 long-running tasks，但很少公开 trace -> update -> eval 的自升级细节。</td><td>可作为 Societas 1.0 / 2.0 产品形态参照；不应作为 self-evolution 证据，除非后续公开 memory/tool/workflow 的自净化机制。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">Infra Takeaway</div>
+          <p class="big-quote">Societas 3.0 的主线应是 Agent Shell Self-purification：基于真实轨迹净化 memory、skill、tool、workflow、verifier 和 harness，而不是先做模型参数自升级。</p>
         </div>
       </section>
 
@@ -1012,8 +1053,107 @@ how knowledge flows</code></pre>
         </div>
       </section>
 
-      <section id="trends">
-        <h2>8. 研究前沿趋势判断</h2>
+      <section id="demo">
+        <h2>8. 可以 Show 的 Demo：QBR Pack 自升级</h2>
+        <p class="lede">如果要让用户在 5 分钟内理解 self-evolving agent 的价值，最好的 demo 不是“agent 说自己学会了”，而是展示同一类真实工作流在两轮执行之间发生了可解释、可验证、可量化的改进。</p>
+        <div class="callout">
+          <div class="callout-title">Demo Thesis</div>
+          <p class="big-quote">Societas 不只是完成一次任务，而是把每次任务变成下一次更可靠的工作能力。</p>
+        </div>
+
+        <h3>8.1 三个可以展示的 Demo</h3>
+        <div class="grid-3">
+          <article class="mini-card"><h4>Demo 1：QBR Pack 自升级</h4><p>最推荐。覆盖 browser、Office artifact、workflow、verifier、memory、skill 和 before / after score。</p></article>
+          <article class="mini-card"><h4>Demo 2：Browser Operator 自升级</h4><p>展示 agent 如何从浏览器操作失败中升级 tool policy、post-check、human approval gate 和 recovery branch。</p></article>
+          <article class="mini-card"><h4>Demo 3：Skill Learning</h4><p>展示 agent 如何从一次任务轨迹中沉淀 skill card，第二次同类任务更快、更少工具调用、更少返工。</p></article>
+        </div>
+
+        <h3>8.2 Demo 1：客户周报 / QBR Pack 自升级</h3>
+        <div class="grid-3">
+          <article class="mini-card"><h4>输入</h4><p>CRM / SaaS 页面、Excel / CSV 数据、网页或文档资料、用户偏好。</p></article>
+          <article class="mini-card"><h4>执行</h4><p>Browser-operator 取数和更新状态，Office generator 生成 PPT、Excel 附表和 Word brief。</p></article>
+          <article class="mini-card"><h4>输出</h4><p>一套可编辑 QBR / 周报包，以及 trace、scorecard、evolution patch 和 before / after 对比。</p></article>
+        </div>
+
+        <h3>8.3 Demo 1 剧情</h3>
+        <div class="pipeline">
+          <div class="pipe-step"><b>1. First Run</b>普通 agent 完成任务，但 PPT 偏好不匹配、Excel 字段映射错、CRM 保存未验证、引用覆盖不足。</div>
+          <div class="pipe-step"><b>2. Scorecard</b>Verifier 给出分数和失败证据，不靠 agent 自称完成。</div>
+          <div class="pipe-step"><b>3. Attribution</b>把失败归因到 memory、skill、workflow、tool policy 和 verifier。</div>
+          <div class="pipe-step"><b>4. Evolution Patch</b>生成有类型的升级候选，用户审批后进入版本库。</div>
+          <div class="pipe-step"><b>5. Second Run</b>同类任务再次执行，分数、人工介入、工具调用和返工明显改善。</div>
+        </div>
+
+        <h3>8.4 Demo 1 可视化重点</h3>
+        <div class="grid-3">
+          <article class="paper-card"><h4>Run Replay</h4><p>像录像一样回放浏览器操作、工具调用、文件生成和 verifier 结果。</p></article>
+          <article class="paper-card"><h4>Failure Attribution</h4><p>在 trace graph 上用红点标出：CRM save 缺 post-check、PPT 偏好 memory 缺失、Excel verifier 太弱。</p></article>
+          <article class="paper-card"><h4>Evolution Patch</h4><p>用类似 Git diff 的形式展示新增 memory、skill、workflow checkpoint、tool policy 和 verifier note。</p></article>
+          <article class="paper-card"><h4>Approval Gate</h4><p>用户看到 patch 的影响范围、风险等级和验证计划后点击 Approve update。</p></article>
+          <article class="paper-card"><h4>Before / After</h4><p>展示分数、时间、人工介入、工具调用、manual edits 和最终产物截图。</p></article>
+          <article class="paper-card"><h4>Artifact Proof</h4><p>PPT、Excel、Word 都能打开、编辑、解析，并能通过结构、公式、引用和状态检查。</p></article>
+        </div>
+
+        <h3>8.5 Demo 1 展示分数变化</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>指标</th><th>第一次执行</th><th>自升级后第二次</th><th>用户能感知到什么</th></tr></thead>
+            <tbody>
+              <tr><td>Overall score</td><td>68</td><td>93</td><td>不是“看起来更聪明”，而是端到端质量显著提升。</td></tr>
+              <tr><td>CRM state success</td><td>60</td><td>100</td><td>保存后新增状态验证，少掉隐性失败。</td></tr>
+              <tr><td>User preference match</td><td>55</td><td>92</td><td>记住并复用 executive-summary-first、一页一结论等偏好。</td></tr>
+              <tr><td>Manual correction count</td><td>8</td><td>1</td><td>用户返工减少，协作体验更像 coworker。</td></tr>
+              <tr><td>Tool calls</td><td>46</td><td>31</td><td>skill / workflow 生效后少走弯路。</td></tr>
+              <tr><td>Time to accepted deliverable</td><td>18 min</td><td>9 min</td><td>同类任务第二次更快完成。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>8.6 Demo 1 Evolution Patch 示例</h3>
+        <div class="map"><pre><code>&#43; Memory patch: user prefers executive-summary-first QBR decks&#10;&#43; Skill card: weekly_business_review_pack&#10;&#43; Workflow checkpoint: verify CRM saved timestamp after browser save&#10;&#43; Tool policy: browser.save_record requires toast + record timestamp post-check&#10;&#43; Verifier note: add citation coverage and Excel formula recalculation checks</code></pre></div>
+
+        <h3>8.7 Demo 2：Browser Operator 自升级</h3>
+        <p class="lede">这个 demo 的冲击力来自“真实系统操作”：agent 第一次在 CRM / ServiceNow / 飞书表格里更新记录时踩坑，第二次因为 tool policy 和 workflow checkpoint 升级而明显更稳。</p>
+        <div class="grid-3">
+          <article class="paper-card"><h4>First Run Failure</h4><p>点了保存但没有确认成功；字段填错；页面状态还没稳定就继续下一步；外发邮件前没有 human approval。</p></article>
+          <article class="paper-card"><h4>Shell Upgrade</h4><p>新增 save-and-verify workflow、browser tool post-check、field mapping memory、approval gate 和失败恢复分支。</p></article>
+          <article class="paper-card"><h4>Second Run Proof</h4><p>表单字段正确率、保存状态验证、外发审批合规、重复点击次数和用户接管次数全部改善。</p></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>指标</th><th>第一次执行</th><th>自升级后第二次</th><th>证明了什么</th></tr></thead>
+            <tbody>
+              <tr><td>Form field accuracy</td><td>76</td><td>98</td><td>field mapping memory 和页面读取策略生效。</td></tr>
+              <tr><td>Save verified</td><td>No</td><td>Yes</td><td>新增 post-check 后不再把“点了保存”当作“保存成功”。</td></tr>
+              <tr><td>Repeated browser actions</td><td>12</td><td>3</td><td>workflow checkpoint 和等待策略减少无效操作。</td></tr>
+              <tr><td>Approval compliance</td><td>60</td><td>100</td><td>高风险外发动作进入 human approval gate。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>8.8 Demo 3：Skill Learning 自升级</h3>
+        <p class="lede">这个 demo 最适合展示 “vertical skills from co-creation”：第一次做复杂 Excel 分析或 PPT 模板化任务时，agent 走了很多弯路；任务结束后从轨迹和 verifier feedback 生成 skill card，第二次同类任务直接调用技能。</p>
+        <div class="grid-3">
+          <article class="paper-card"><h4>No Skill</h4><p>agent 靠通用规划完成任务，工具调用多、错误恢复慢、用户修正多。</p></article>
+          <article class="paper-card"><h4>Learned Skill Card</h4><p>自动生成 intent、preconditions、steps、required tools、validation probes、failure modes、examples 和 source_runs。</p></article>
+          <article class="paper-card"><h4>With Skill</h4><p>第二次同类任务少检索、少试错、少返工，并且 verifier 更早介入。</p></article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>指标</th><th>No Skill</th><th>With Learned Skill</th><th>证明了什么</th></tr></thead>
+            <tbody>
+              <tr><td>Task score</td><td>71</td><td>92</td><td>skill 不是文档沉淀，而是能提升端到端任务质量。</td></tr>
+              <tr><td>Tool calls</td><td>42</td><td>21</td><td>可复用步骤减少探索成本。</td></tr>
+              <tr><td>User corrections</td><td>6</td><td>1</td><td>失败模式和验证策略被复用。</td></tr>
+              <tr><td>Cost</td><td>1.00x</td><td>0.72x</td><td>skill 让同类任务更便宜。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="trends-reading">
+        <h2>9. 趋势判断与深读顺序</h2>
+        <h3>9.1 研究前沿趋势判断</h3>
         <div class="grid-3">
           <article class="paper-card"><h4>从 prompt evolution 到 system evolution</h4><p>2023 的主角是 prompt/reflection；2024-2026 的主角变成 agentic system design、workflow code、harness、archive、population。</p></article>
           <article class="paper-card"><h4>从单 agent memory 到 population memory</h4><p>multi-agent 系统可以进化团队结构、知识流和 specialization，这是单 agent 不具备的新能力。</p></article>
@@ -1022,10 +1162,7 @@ how knowledge flows</code></pre>
           <article class="paper-card"><h4>Harness 会成为产品护城河</h4><p>同一个模型，换不同 harness，能力差距会很大。好的 harness 可诊断、可回放、可验证、可治理。</p></article>
           <article class="paper-card"><h4>开放但有边界</h4><p>最可能落地的是不可变 core + 可进化插件层 + 审计日志 + 自动验证 + 人类审批。</p></article>
         </div>
-      </section>
-
-      <section id="reading">
-        <h2>9. 推荐继续深读顺序</h2>
+        <h3>9.2 推荐继续深读顺序</h3>
         <div class="reading-list">
           <a class="reading-item" href="https://arxiv.org/abs/2505.22954"><span><strong>Darwin Godel Machine</strong><span>2025-2026：自修改 agent 的最前沿形态。</span></span></a>
           <a class="reading-item" href="https://arxiv.org/abs/2408.08435"><span><strong>Automated Design of Agentic Systems</strong><span>2024：ADAS 和 Meta Agent Search 的概念框架。</span></span></a>
