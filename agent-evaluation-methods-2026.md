@@ -452,6 +452,15 @@ CN AI Browser:
 4. 最后用 locked assertions 评 artifact / process / satisfaction
 ```
 
+这可以进一步收敛成 Societas Eval 的 4 条设计原则：
+
+| 设计原则 | 借鉴来源 | 对 Societas 的含义 |
+|---|---|---|
+| 先识别真实 intent / signal | Edge Journeys | 先判断用户是在继续项目、放弃任务、重复修正，还是一次性噪声；不要把所有行为都当成满意度或偏好 |
+| 用 rubric + Golden Case 双轨 | PM Studio | A 系统用通用 rubric 评新题，B 系统用真实用户 Golden Case 做日常回归 |
+| 产品输出和 GT 分线生成 | CN AI Browser | agent 真实输出 / trace 是一条线，caseGT / assertions 是另一条线，最后才合并评分 |
+| 用 locked evidence 做统一评估 | CN AI Browser + PM Studio | 先冻结 source、prompt、rubric、caseGT、judge，再评 artifact / process / satisfaction，避免看结果后改标准 |
+
 一句话总结第 5 章：
 
 **Edge 告诉我们怎么从 user journey 里找真实意图；PM Studio 告诉我们怎么把复杂工作拆成 rubric 和 Golden Case；CN AI Browser 告诉我们怎么把产品输出和标准答案分线生成，并用同一套 assertions 做可复查评估。**
@@ -484,7 +493,7 @@ CN AI Browser:
 
 ## 6. 最后引出我们要做的 Eval：复用现有 Benchmark + Societas 适配层
 
-综合上面几层，Societas 不需要从零自研一套 benchmark。更合理的做法是：**复用现有 benchmark 的成熟方法，把它们组合成一个 Societas-specific eval workbench。**
+基于第 5 节的 4 条设计原则，Societas 不需要从零自研一套 benchmark。更合理的做法是：**复用现有 benchmark 和产品 eval 的成熟方法，把它们组合成一个 Societas-specific eval workbench。**
 
 具体选择：
 
