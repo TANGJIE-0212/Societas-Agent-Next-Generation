@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Evaluation 方法调研报告 2026</title>
+  <style>
+    :root {
+      --paper: #fbfaf7;
+      --surface: #ffffff;
+      --ink: #17201c;
+      --muted: #5d6a63;
+      --line: #dbe3dc;
+      --green: #1f7a5c;
+      --green-2: #dff3eb;
+      --coral: #c8563d;
+      --coral-2: #fae4dd;
+      --gold: #af7a1a;
+      --gold-2: #f6ead1;
+      --violet: #6956a8;
+      --violet-2: #ebe7fb;
+      --cyan: #277386;
+      --cyan-2: #dff1f5;
+      --shadow: 0 14px 34px rgba(23, 32, 28, 0.08);
+      --radius: 8px;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: ui-serif, Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, rgba(223, 243, 235, 0.82), rgba(251, 250, 247, 0) 400px), var(--paper);
+      font-family: var(--sans);
+      line-height: 1.68;
+    }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .layout { display: grid; grid-template-columns: 286px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      overflow: auto;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+    }
+    .brand { padding: 0 8px 20px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+    .brand-kicker { color: var(--green); font-size: 12px; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand-title { margin-top: 8px; font-size: 20px; line-height: 1.18; font-weight: 900; }
+    .brand-meta { margin-top: 8px; color: var(--muted); font-size: 13px; }
+    nav { display: grid; gap: 4px; font-size: 13px; }
+    nav a { display: block; padding: 7px 10px; border-radius: 8px; color: #26312b; }
+    nav a.depth-3 { padding-left: 22px; color: var(--muted); }
+    nav a:hover { background: var(--green-2); text-decoration: none; }
+    main { width: min(1160px, 100%); padding: 42px 44px 72px; }
+    .hero { display: grid; gap: 16px; margin-bottom: 34px; }
+    .hero h1 { margin: 0; max-width: 980px; font-size: clamp(38px, 5vw, 70px); line-height: 1; letter-spacing: 0; }
+    .subtitle { max-width: 900px; margin: 0; color: #344139; font-size: 19px; line-height: 1.72; }
+    .stamp-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+    .stamp { display: inline-flex; align-items: center; min-height: 34px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.86); color: var(--muted); font-size: 13px; font-weight: 750; }
+    article.report { display: grid; gap: 18px; }
+    h1, h2, h3, h4 { letter-spacing: 0; }
+    article.report h1 { display: none; }
+    h2 { margin: 38px 0 8px; font-size: clamp(27px, 3vw, 42px); line-height: 1.12; }
+    h3 { margin: 26px 0 6px; font-size: 22px; line-height: 1.22; }
+    h4 { margin: 18px 0 4px; font-size: 17px; line-height: 1.3; }
+    p { margin: 0 0 12px; color: #344139; }
+    strong { color: var(--ink); }
+    hr { width: 100%; margin: 30px 0 8px; border: 0; border-top: 1px solid var(--line); }
+    ul, ol { margin: 0 0 14px 24px; padding: 0; color: #344139; }
+    li { margin: 5px 0; }
+    code { font-family: var(--mono); font-size: 0.92em; background: var(--green-2); color: #143b2f; border-radius: 6px; padding: 1px 5px; }
+    pre { margin: 0 0 16px; overflow-x: auto; padding: 18px; border-radius: var(--radius); background: #1f2924; color: #e8f2ec; font-family: var(--mono); font-size: 14px; line-height: 1.65; }
+    pre code { display: block; background: transparent; color: inherit; padding: 0; border-radius: 0; font-size: inherit; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: 0 8px 20px rgba(23, 32, 28, 0.04); margin: 4px 0 18px; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #edf5ef; font-weight: 850; color: #24322b; }
+    tr:last-child td { border-bottom: 0; }
+    blockquote { margin: 0 0 16px; padding: 16px 18px; border-left: 4px solid var(--gold); background: var(--gold-2); border-radius: 0 var(--radius) var(--radius) 0; color: #443317; }
+    .callout { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); margin: 10px 0 20px; }
+    .callout p:last-child { margin-bottom: 0; }
+    .footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 46px; }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      nav a.depth-3 { padding-left: 10px; }
+      main { padding: 32px 22px 56px; }
+    }
+    @media (max-width: 620px) {
+      nav { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 38px; }
+      .subtitle { font-size: 16px; }
+      table { min-width: 680px; }
+    }
+    @media print {
+      body { background: #fff; }
+      aside { display: none; }
+      .layout { display: block; }
+      main { width: 100%; padding: 0; }
+      pre { white-space: pre-wrap; }
+      .table-wrap, .callout { box-shadow: none; }
+      a { color: #000; text-decoration: underline; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <div class="brand-kicker">Research Report</div>
+        <div class="brand-title">Agent Evaluation 方法调研</div>
+        <div class="brand-meta">2026-06-09 · 独立报告</div>
+      </div>
+      <nav id="toc" aria-label="目录"></nav>
+    </aside>
+    <main>
+      <header class="hero">
+        <h1>Agent Evaluation 方法调研报告 2026</h1>
+        <p class="subtitle">一份面向下一代 agent 的评估方法调研：从 outcome success、environment state、programmatic verifier、trajectory、milestone evidence，到 LLM judge、human review、cost、safety 与 regression。</p>
+        <div class="stamp-row">
+          <span class="stamp">multi-signal evaluation</span>
+          <span class="stamp">evidence-grounded verifier</span>
+          <span class="stamp">eval harness blueprint</span>
+        </div>
+      </header>
+      <article id="report" class="report"></article>
+      <div class="footer"><p>Narrative HTML generated from the mainline sections of agent-evaluation-methods-2026.md.</p></div>
+    </main>
+  </div>
+  <script id="report-source" type="application/json">"# Agent Evaluation 方法调研报告 2026\n\n日期：2026-06-09\n\n定位：独立调研报告，不依附于现有 memo。本文关注“如何评估 agent”，尤其是能操作工具、浏览器、OS、代码仓库、SaaS、文件和工作流的下一代 agent。\n\n---\n\n## 0. 推荐呈现逻辑：从 Societas 的问题讲到 Societas 的 Eval\n\n这份报告的主线不应该从“有哪些 benchmark”开始，而应该从 Societas 自己的产品问题开始。行业 benchmark 是证据和方法库，不是故事起点。\n\n推荐讲法：\n\n```text\n1. 先讲 Signals to Satisfaction memo：Societas 遇到了什么问题\n2. 再讲解决问题的两步：Stage 1 Evaluation -> Stage 2 Adaptation\n3. 再讲 Mid+Heavy 用户：我们的核心用户到底在用 Societas 做什么\n4. 再讲业内 Agent Eval 形式：只讲和 Societas 相关的几类\n5. 再讲其他产品如何做 eval：Edge User Journey 等文档后续补入\n6. 最后引出我们要做的 Societas Eval：一个专业文件生产系统的 workbench\n```\n\n一句话主张：**Societas 的 eval 不是通用 agent 跑分，而是一个围绕专业交付物、项目连续性、修订负担和用户满意度闭环的 product eval system。**\n\n---\n\n## 1. 先讲问题：为什么 Societas 不能只采用行业趋势\n\n来自 `From signals to satisfaction — closing the loop in Societas` 的核心判断是：行业正在快速采用 memory、personalization、workflow、agent skills 等能力，但这些能力本身不能保证用户觉得“系统懂我”。\n\n真正的 gap 不在于有没有 memory，而在于：\n\n```text\n用户在真实使用中留下大量信号：接受、修改、重复生成、返回、放弃。\n但系统没有把这些信号读成“质量”和“满意度”。\n因此下一次仍然不知道什么对这个用户是好的。\n```\n\n这解释了为什么很多产品已经有 memory / personalization，用户仍然会觉得系统没有变得更懂自己。功能在工作，但底层没有一个可靠的 evaluation substrate，导致 adaptation 只能在弱信号上工作。\n\n### 1.1 问题不是离线 benchmark 不够多，而是产品闭环缺 Stage 1\n\n传统 benchmark 能回答：\n\n```text\n这个 agent 在某类任务上能不能完成？\n这个文件是否符合 gold answer 或 verifier？\n这个模型是否比另一个模型强？\n```\n\n但 Societas 真正要回答的是：\n\n```text\n这个用户对结果满意吗？\n他为什么修改？\n他是否反复修正同一类问题？\n这次失败是 universal failure，还是 user-specific mismatch？\n系统有没有把这些信号变成下一次更好的结果？\n```\n\n所以，Societas 的 eval 必须从 offline capability eval 扩展到 online satisfaction eval。\n\n---\n\n## 2. 再讲解决办法：Stage 1 Evaluation -> Stage 2 Adaptation\n\n这篇 memo 给出的关键结构是两步：\n\n| Stage | 要解决什么 | 对 Societas 的含义 |\n|---|---|---|\n| Stage 1 Evaluation | 在真实使用中评估 artifact 质量和用户满意度，并区分 universal signal vs user-specific signal | 先知道“哪里不好、对谁不好、为什么不好” |\n| Stage 2 Adaptation | 基于 Stage 1 的判断更新输出、workflow、memory、skill、personalization | 再决定改全局能力、项目记忆，还是个人偏好 |\n\n这个顺序不能反过来。没有 Stage 1，Stage 2 会变成盲目个性化：系统记住了一些表面信号，但不知道这些信号代表满意、不满意、通用失败，还是个人偏好。\n\n因此 Societas 的完整闭环应该是：\n\n```text\nUser behavior signal\n  -> Satisfaction / quality evaluation\n  -> Attribution: universal vs user-specific vs project-specific\n  -> Adaptation target: global workflow / verifier / project memory / personal memory\n  -> Next run improves\n  -> Measure whether correction burden actually drops\n```\n\n这也是本报告后面所有 benchmark 选择的前提：行业 benchmark 只能补 Stage 1 的一部分，不能替代真实用户满意度闭环。\n\n---\n\n## 3. 再讲核心用户：Mid+Heavy Users 证明 Societas 是专业文件生产系统\n\nMid+Heavy 用户样本说明，Societas 的核心用户不是轻量聊天用户，而是高强度专业文件生产者。他们在 1-6 天内围绕一个职业场景、项目或案件连续生成大量 PPT / Word。\n\n最重要的模式不是“用户问了很多问题”，而是：\n\n```text\n短时间内围绕同一专业目标，连续生产一组可交付文件，\n这些文件之间有上下文、风格、术语、版本和业务一致性。\n```\n\n代表性真实场景：\n\n| 用户类型 | 样本信号 | 对 eval 的启发 |\n|---|---|---|\n| JP OT 老师 | 89 个 PPT，56 个临床主题，构建神经发育/感觉统合课程体系 | 需要评专业课程 PPT、临床准确性、系列连贯性 |\n| KE 初创顾问 | 73 个 Word，约 40 个项目，构建公司 NDA、SLA、服务目录、客户提案 | 需要评公司文档体系完整性和跨文档一致性 |\n| CH 破产清算律师 | 89 个 Word，真实案件 I00068，债权人名单多次迭代 | 需要评法律 Word、事实一致性、版本安全和附件引用 |\n| BR 地理教育教师 | 55 个 PPT，18 个地理/环境教育项目 | 需要评教育内容批量生产和课程系列一致性 |\n| KR 财务分析师 | 48 个 PPT，Asan 系列企业财报分析 | 需要评财务图表、数据解释、结论支撑 |\n| 中度用户群 | 医学教育、BIM、海事合规、NGO 儿童安全、LLM 技术规格、脑卒中研究 | 需要覆盖 market / domain 多样性，而不是只评英文商业 deck |\n\n这批用户把 Societas 的 eval 定义得更清楚：**我们要评的不是通用 task success，而是专业文件生产系统的 project-pack success。**\n\n---\n\n## 4. 再讲行业 Eval：只讲和 Societas 相关的几类\n\n行业 eval 很多，但和 Societas 最相关的是五类。\n\n### 4.1 GDPval-like Deliverable Eval\n\n代表和链接：\n\n| 代表 | 链接 | 我们复用什么 |\n|---|---|---|\n| GDPval | https://openai.com/index/gdpval/ | 真实职业任务、专业交付物、专家 rubric、专家盲评 / preference 判断 |\n| SWE-Lancer | https://openai.com/index/swe-lancer/ | 把任务表现映射到真实经济价值，用真实工作任务而不是 toy task |\n| MLE-bench | https://openai.com/index/mle-bench/ | 垂直专业任务可以用客观 metric / leaderboard 评估 |\n| PaperBench | https://openai.com/index/paperbench/ | 复杂专业交付物要拆成层级 rubric 和可评分子任务 |\n\n这一类的 learning：评估应该基于真实职业任务、真实交付物、专家 rubric、经济价值或专业基线，而不是只评考试题。\n\nSocietas 的用法：\n\n```text\n优先复用 GDPval 的方法和 gold set：\n真实职业任务 + deliverable + domain rubric + expert/user preference。\n\nSocietas 只需要补一个适配层：\nPPT/Word/Excel 产物、项目包一致性、修订负担、在线满意信号。\n```\n\n最优先复用：**GDPval 的任务设计和专家 rubric**。PaperBench 的层级 rubric 可以作为复杂项目包评分的补充。\n\n### 4.2 Workflow / Workplace Eval\n\n代表和链接：\n\n| 代表 | 链接 | 我们复用什么 |\n|---|---|---|\n| WorkArena / BrowserGym | https://arxiv.org/abs/2403.07718 | 企业 SaaS / browser workflow 的任务设计、action space、workflow completion 评估 |\n| TheAgentCompany | https://arxiv.org/abs/2412.14161 | 模拟公司环境里的 digital worker 任务、跨工具/同事沟通/长程工作评估 |\n| tau-bench | https://arxiv.org/abs/2406.12045 | 用户对话 + 工具/API + domain policy + 最终数据库状态的评估结构 |\n| AppWorld | https://arxiv.org/abs/2407.18901 | 多 app/API 工作流、state-based unit tests、collateral damage 检查 |\n\n这一类的 learning：真实 agent 不只是生成文件，还要在 SaaS、浏览器、API、团队上下文、规则约束中推进任务。\n\nSocietas 的用法：\n\n```text\nSocietas coworker / workflow layer 需要评 workflow state、tool calls、approval gates、domain policy。\n```\n\n最优先复用：**tau-bench 的 user/tool/policy/final-state 结构 + WorkArena 的 workplace workflow 任务形态**。Societas 还要补 Office artifact 和 project-pack consistency。\n\n### 4.3 Office / Artifact Verifier\n\n代表和链接：\n\n| 代表 | 链接 | 我们复用什么 |\n|---|---|---|\n| SWE-bench | https://arxiv.org/abs/2310.06770 | 用可执行测试判断真实任务是否完成，而不是相信模型自述 |\n| AppWorld | https://arxiv.org/abs/2407.18901 | state-based unit tests 和 collateral damage 检查 |\n| OSWorld | https://arxiv.org/abs/2404.07972 | 初始状态配置、execution-based evaluation script、环境状态检查 |\n| AndroidWorld | https://arxiv.org/abs/2405.14573 | success-checking / tear-down 逻辑，动态任务变体下的鲁棒性检查 |\n\n这一类的 learning：能用程序检查的，先用程序检查；不要让 agent 自己说“完成了”。\n\nSocietas 的用法：\n\n```text\nPPT / Word / Excel 必须先过工程验收：能打开、结构完整、公式/图表/引用不坏、无空白占位。\n```\n\n最优先复用：**SWE-bench 的 test-as-verifier 思想 + OSWorld 的 execution-based script 结构**。Societas 要补的是 Office-specific verifier：pptx/docx/xlsx parser、结构检查、引用/公式/图表检查、版本 diff 检查。\n\n### 4.4 Trajectory / Milestone / Evidence-chain Eval\n\n代表和链接：\n\n| 代表 | 链接 | 我们复用什么 |\n|---|---|---|\n| OS-Themis | https://arxiv.org/abs/2603.19191 | 把 GUI agent trajectory 拆成可验证 milestone，并审计 evidence chain |\n| PaperBench | https://openai.com/index/paperbench/ | 复杂专业任务拆成层级 rubric 和大量可评分子任务 |\n| WebLINX | https://arxiv.org/abs/2402.05930 | 多轮网页导航中的 action history、observation、用户对话上下文 |\n| WorkArena / BrowserGym | https://arxiv.org/abs/2403.07718 | browser agent 的 action / observation trace 和工作流节点 |\n\n这一类的 learning：复杂任务不能只看最终结果，要看过程轨迹、milestone 和 evidence chain。\n\nSocietas 的用法：\n\n```text\n我们要记录从用户目标到产物交付的 trajectory，才能知道失败发生在哪一步。\n```\n\n最优先复用：**OS-Themis 的 milestone + evidence-chain critic**。Societas 要补的是 artifact plan、Office verifier result、user revision diff、accepted-version preservation 这些文件生产专属 evidence。\n\n### 4.5 Cost / Reliability / Regression Eval\n\n代表和链接：\n\n| 代表 | 链接 | 我们复用什么 |\n|---|---|---|\n| AI Agents That Matter | https://arxiv.org/abs/2407.01502 | cost + accuracy 联合评估、holdout、防 benchmark overfit、可复现性纪律 |\n| tau-bench | https://arxiv.org/abs/2406.12045 | 多次运行可靠性、pass^k / consistency、规则遵循稳定性 |\n| AndroidWorld | https://arxiv.org/abs/2405.14573 | 动态任务变体下的鲁棒性和环境 reset / tear-down |\n| SWE-Lancer | https://openai.com/index/swe-lancer/ | 将任务成功映射到真实经济价值和成本收益 |\n\n这一类的 learning：agent eval 不能只看 accuracy，还要看成本、稳定性、holdout、防过拟合、regression。\n\nSocietas 的用法：\n\n```text\n每次 workflow / memory / skill 改动都要看旧任务是否退化，用户修订负担是否真的下降。\n```\n\n最优先复用：**AI Agents That Matter 的 cost / holdout / reproducibility 纪律 + tau-bench 的 reliability 指标**。Societas 要补的是 repeat correction rate、human cleanup time、accepted-version preservation 和 user-specific adaptation gain。\n\n---\n\n## 5. 再讲其他产品如何做 Eval：Edge User Journey 等待补充\n\n这一节先留出位置，等 Edge User Journey 或其他产品 eval 文档补齐后再填实。\n\n建议到时候重点看五个问题：\n\n1. 他们评的是 feature success、task success，还是 user journey satisfaction？\n2. 他们如何采集真实使用信号：click、return、abandon、edit、export、manual feedback？\n3. 他们有没有把 offline benchmark 和 online product telemetry 连起来？\n4. 他们如何做 attribution：产品 bug、模型能力、用户偏好、内容质量、外部环境？\n5. 他们的 eval 结果如何进入下一轮产品更新：prompt、UX、workflow、memory、policy？\n\n在 Societas 的叙事里，这一节的作用不是“照抄别人的 eval”，而是回答：**我们如何把行业和兄弟产品的经验，转成适合专业文件生产场景的 eval loop。**\n\n---\n\n## 6. 最后引出我们要做的 Eval：复用现有 Benchmark + Societas 适配层\n\n综合上面几层，Societas 不需要从零自研一套 benchmark。更合理的做法是：**复用现有 benchmark 的成熟方法，把它们组合成一个 Societas-specific eval workbench。**\n\n具体选择：\n\n| 用哪个 | 负责评什么 | Societas 怎么用 |\n|---|---|---|\n| [GDPval](https://openai.com/index/gdpval/) | 真实职业任务、专业交付物、专家 rubric、盲评偏好 | 作为 north-star deliverable eval；优先复用其任务设计、rubric 结构和专家评审方式 |\n| [WorkArena](https://arxiv.org/abs/2403.07718) / [TheAgentCompany](https://arxiv.org/abs/2412.14161) | 工作环境、企业 SaaS、长程 workflow、digital worker 行为 | 作为 workflow / workplace eval 方法；评浏览器、SaaS、文件、团队上下文中的任务推进 |\n| [tau-bench](https://arxiv.org/abs/2406.12045) / [AppWorld](https://arxiv.org/abs/2407.18901) | 用户交互、API/tool 调用、domain policy、最终状态和 collateral damage | 作为 tool-state-policy eval 方法；评工具调用正确性、规则遵守和副作用 |\n| [SWE-bench](https://arxiv.org/abs/2310.06770) / [AppWorld](https://arxiv.org/abs/2407.18901) / [OSWorld](https://arxiv.org/abs/2404.07972) 的 verifier 思路 | 程序化验收、状态检查、可复现 evaluation scripts | 用来做 Office verifier：pptx/docx/xlsx 能打开、结构完整、公式/引用/图表不坏 |\n| [PaperBench](https://openai.com/index/paperbench/) / [OS-Themis](https://arxiv.org/abs/2603.19191) | 层级 rubric、milestone、evidence chain、复杂任务拆分 | 用来评专业项目包和 trajectory，而不是只看最终文件 |\n| [AI Agents That Matter](https://arxiv.org/abs/2407.01502) | cost、holdout、防过拟合、可复现性 | 作为评测纪律：所有分数都要配 cost / latency / regression / holdout |\n\n所以我们不是“造一个孤立的 Societas benchmark”，而是做一个用户价值优先的组合。Memo 的主张是：不要为了评测完整性把所有行业指标都平铺跑一遍，而要优先保留用户真正关心的东西。\n\n```text\nSocietas Workbench Score = 交付物是否专业可用 + 用户是否少改 + 过程是否可信\n```\n\n### 6.1 Hard Gates：先过门槛，不参与加权\n\n有些问题不能靠加权分抵消。只要发生，任务就不能算成功：\n\n| Hard Gate | 触发条件 |\n|---|---|\n| Office artifact integrity | pptx/docx/xlsx 损坏、打不开、不可编辑、关键结构缺失 |\n| Critical domain risk | 医疗、法律、财务、儿童安全等领域出现关键危险错误或 unsupported claim |\n| Unauthorized external action | 未经用户确认就发送、删除、提交、付款、外部发布 |\n| Privacy / policy violation | 泄露敏感信息、越权访问、违反权限边界 |\n| Severe state corruption | 误改源文件、污染 SaaS/API 状态、破坏已确认版本 |\n\n### 6.2 加权总分：50 / 20 / 20 / 5 / 5\n\n通过 hard gates 后，再算 100 分：\n\n| 模块 | 权重 | 主要参考 | 采集方式 | 评分方式 |\n|---|---:|---|---|---|\n| GDPval-style professional deliverable quality | 50 | GDPval、PaperBench、SWE-Lancer、MLE-bench | source materials、最终 PPT/Word/Excel/PDF、专家 rubric、LLM judge、人工抽样评审 | domain correctness、completeness、ready-to-use、professional quality、style/tone fit |\n| Satisfaction / revision loop | 20 | Societas memo、online product telemetry、Chatbot Arena/MT-Bench 的 preference 思路 | download/export、return-to-project、manual edit distance、regenerate、abandon、repeat correction、revision rounds | 用户是否接受、少改、少重来、同类错误是否减少 |\n| Process trust: trajectory / milestone / workflow | 20 | WorkArena、TheAgentCompany、tau-bench、AppWorld、OS-Themis、WebLINX | workflow trace、tool call log、approval log、action/observation、milestone evidence、verifier report、final state snapshot | workflow 是否跑通、tool/policy/state 是否正确、milestone evidence 是否完整、授权确认是否可审计 |\n| Project-pack consistency | 5 | GDPval 扩展、PaperBench 层级任务、Societas Mid/Heavy samples | project_id、同项目多文件、版本 diff、实体/术语抽取、style profile、cross-artifact references | 跨文件术语、事实、结构、风格、引用一致性 |\n| Cost / reliability | 5 | AI Agents That Matter、tau-bench、AndroidWorld | token cost、latency、same-task repeated runs、holdout/regression results | cost-normalized success、pass@1 / consistency、regression penalty |\n\n公式：\n\n```text\nSocietas Workbench Score =\n  50 GDPval-style Deliverable Quality\n+ 20 Satisfaction / Revision Loop\n+ 20 Process Trust: Trajectory / Milestone / Workflow\n+  5 Project-pack Consistency\n+  5 Cost / Reliability\n= 100\n```\n\n这个权重表达的是：70 分直接围绕用户价值，30 分围绕交付过程和系统健康。\n\n```text\n用户价值：50 交付物质量 + 20 满意度/修改负担\n过程健康：20 过程可信 + 5 项目包一致性 + 5 成本可靠性\n```\n\n### 6.3 Project-pack consistency 只占 5 分\n\nProject-pack consistency 很重要，但不是每个任务都有。对单文件任务，它不应该占太大权重；对多文件项目包任务，可以作为 conditional metric 单独展开。\n\n```text\nProject-pack task: 单独计算 5 分 consistency\nSingle-artifact task: 这 5 分可以并入 Deliverable Quality 或 Satisfaction / Revision\n```\n\n这种设计避免因为少数 project-pack 场景，把所有任务的权重都拉偏。\n\n### 6.4 第一版 Eval Suite\n\n第一版可以从 16-24 个高质量任务开始，不追求大而全。\n\n| Suite | 来源 | 第一版重点 |\n|---|---|---|\n| Clinical / Medical Education PPT | JP OT、MX 内分泌 | 医学准确性、教学结构、系列课程连贯性 |\n| Business / Consulting Deck | SG/VN/PT 咨询与销售用户 | 商业逻辑、提案结构、客户 ready 程度 |\n| Company Document Pack | KE 初创顾问 | NDA / SLA / 服务目录 / 客户提案之间的一致性 |\n| Legal / Formal Word Pack | CH 法律案件 | 人名、金额、日期、附件引用、版本安全 |\n| Technical / Research Word | GB LLM spec、BR 脑卒中、PT BIM | 技术完整性、引用 grounding、表格/图示正确 |\n| Education / Training Pack | BR 地理、CD NGO、US 培训 | 学习目标、讲师可用性、quiz / answer key 一致 |\n\n### 6.5 最终论点\n\nSocietas 要证明的不是“agent 能不能完成一个 benchmark task”，而是：\n\n```text\n这个系统能不能稳定交付真实职业文件，\n能不能在一组项目文件中保持一致，\n能不能减少用户修订负担，\n能不能区分通用失败和用户偏好，\n能不能让用户越用越觉得它懂自己。\n```\n\n---\n"</script>
+  <script>
+    const markdown = JSON.parse(document.getElementById('report-source').textContent);
+    const report = document.getElementById('report');
+    const toc = document.getElementById('toc');
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function slugify(text) {
+      return text.trim().toLowerCase()
+        .replace(/<[^>]+>/g, '')
+        .replace(/[`*_]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[\\/?.:,;()[\]{}]+/g, '')
+        .slice(0, 90) || 'section';
+    }
+
+    const usedIds = new Map();
+    function uniqueId(text) {
+      const base = slugify(text);
+      const count = usedIds.get(base) || 0;
+      usedIds.set(base, count + 1);
+      return count === 0 ? base : `${base}-${count + 1}`;
+    }
+
+    function inline(text) {
+      let html = escapeHtml(text);
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+      html = html.replace(/(^|[\s(])((https?:\/\/[^\s<)]+))/g, '$1<a href="$2" target="_blank" rel="noreferrer">$2</a>');
+      return html;
+    }
+
+    function isTableStart(lines, index) {
+      return index + 1 < lines.length && /^\s*\|.*\|\s*$/.test(lines[index]) && /^\s*\|\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[index + 1]);
+    }
+
+    function parseTable(lines, start) {
+      const rows = [];
+      let index = start;
+      while (index < lines.length && /^\s*\|.*\|\s*$/.test(lines[index])) {
+        rows.push(lines[index].trim());
+        index++;
+      }
+      const header = rows[0].replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
+      const body = rows.slice(2).map(row => row.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim()));
+      let html = '<div class="table-wrap"><table><thead><tr>';
+      html += header.map(cell => `<th>${inline(cell)}</th>`).join('');
+      html += '</tr></thead><tbody>';
+      html += body.map(row => `<tr>${row.map(cell => `<td>${inline(cell)}</td>`).join('')}</tr>`).join('');
+      html += '</tbody></table></div>';
+      return { html, next: index };
+    }
+
+    function parseMarkdown(md) {
+      const lines = md.replace(/\r\n/g, '\n').split('\n');
+      const chunks = [];
+      const headings = [];
+      let i = 0;
+
+      while (i < lines.length) {
+        const line = lines[i];
+
+        if (/^```/.test(line.trim())) {
+          const lang = line.trim().slice(3).trim();
+          const codeLines = [];
+          i++;
+          while (i < lines.length && !/^```/.test(lines[i].trim())) {
+            codeLines.push(lines[i]);
+            i++;
+          }
+          i++;
+          chunks.push(`<pre><code class="language-${escapeHtml(lang)}">${escapeHtml(codeLines.join('\n'))}</code></pre>`);
+          continue;
+        }
+
+        if (isTableStart(lines, i)) {
+          const table = parseTable(lines, i);
+          chunks.push(table.html);
+          i = table.next;
+          continue;
+        }
+
+        if (/^---\s*$/.test(line.trim())) {
+          chunks.push('<hr />');
+          i++;
+          continue;
+        }
+
+        const heading = /^(#{1,4})\s+(.+)$/.exec(line);
+        if (heading) {
+          const level = heading[1].length;
+          const text = heading[2].trim();
+          const id = uniqueId(text);
+          chunks.push(`<h${level} id="${id}">${inline(text)}</h${level}>`);
+          if (level === 2 || level === 3) headings.push({ level, text: text.replace(/`/g, ''), id });
+          i++;
+          continue;
+        }
+
+        if (/^>\s?/.test(line)) {
+          const quote = [];
+          while (i < lines.length && /^>\s?/.test(lines[i])) {
+            quote.push(lines[i].replace(/^>\s?/, ''));
+            i++;
+          }
+          chunks.push(`<blockquote>${quote.map(item => `<p>${inline(item)}</p>`).join('')}</blockquote>`);
+          continue;
+        }
+
+        if (/^\s*[-*]\s+/.test(line)) {
+          const items = [];
+          while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+            items.push(lines[i].replace(/^\s*[-*]\s+/, ''));
+            i++;
+          }
+          chunks.push(`<ul>${items.map(item => `<li>${inline(item)}</li>`).join('')}</ul>`);
+          continue;
+        }
+
+        if (/^\s*\d+\.\s+/.test(line)) {
+          const items = [];
+          while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
+            items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
+            i++;
+          }
+          chunks.push(`<ol>${items.map(item => `<li>${inline(item)}</li>`).join('')}</ol>`);
+          continue;
+        }
+
+        if (line.trim() === '') {
+          i++;
+          continue;
+        }
+
+        const paragraph = [line.trim()];
+        i++;
+        while (i < lines.length && lines[i].trim() !== '' && !/^(#{1,4})\s+/.test(lines[i]) && !/^```/.test(lines[i].trim()) && !isTableStart(lines, i) && !/^---\s*$/.test(lines[i].trim()) && !/^\s*[-*]\s+/.test(lines[i]) && !/^\s*\d+\.\s+/.test(lines[i])) {
+          paragraph.push(lines[i].trim());
+          i++;
+        }
+        chunks.push(`<p>${inline(paragraph.join(' '))}</p>`);
+      }
+
+      return { html: chunks.join('\n'), headings };
+    }
+
+    const parsed = parseMarkdown(markdown);
+    report.innerHTML = parsed.html;
+    toc.innerHTML = parsed.headings.map(item => `<a class="depth-${item.level}" href="#${item.id}">${escapeHtml(item.text)}</a>`).join('');
+
+    const firstHr = report.querySelector('hr');
+    if (firstHr && firstHr.previousElementSibling && firstHr.previousElementSibling.tagName === 'P') {
+      firstHr.previousElementSibling.classList.add('callout');
+    }
+  </script>
+</body>
+</html>
