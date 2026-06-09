@@ -2,13 +2,7 @@
 
 日期：2026-06-09
 
-定位：独立调研报告，不依附于现有 memo。本文关注“如何评估 agent”，尤其是能操作工具、浏览器、OS、代码仓库、SaaS、文件和工作流的下一代 agent。
-
-Source links：
-
-- Signals to Satisfaction memo: https://closing-the-gap-review.pages.dev/
-- 20260526 Societas eDAU vs Artifacts Divergence: https://microsoftapc-my.sharepoint.com/:u:/g/personal/alexyuan_microsoft_com/IQCFhohRlOsARrqC34hkMXvGAS3cbjykyePFfP8bMWNPqCY?e=I4BWRw
-- Mid-Heavy User Samples: https://microsoftapc-my.sharepoint.com/:u:/g/personal/alexyuan_microsoft_com/IQAvHzSgiAjWSqZFsWKYl8O6AeB48lZ4c-LyYwSTsxfkIuk?e=C9Qljc
+本文关注“如何评估 agent”，尤其是能操作工具、浏览器、OS、代码仓库、SaaS、文件和工作流的下一代 agent。
 
 ---
 
