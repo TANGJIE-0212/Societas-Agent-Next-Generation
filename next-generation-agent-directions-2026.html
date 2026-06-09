@@ -71,6 +71,7 @@
     h3 { margin: 0 0 10px; font-size: 19px; line-height: 1.25; letter-spacing: 0; }
     .lede { max-width: 900px; color: #344139; font-size: 18px; margin: 0 0 18px; }
     .direction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+    .mvp-step-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .direction-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 18px; min-height: 190px; box-shadow: 0 8px 20px rgba(23, 32, 28, 0.04); }
     .direction-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
     .num { width: 32px; height: 32px; flex: none; display: inline-grid; place-items: center; border-radius: 999px; color: #fff; background: var(--green); font-size: 14px; font-weight: 900; }
@@ -201,41 +202,70 @@
 
       <section id="mvp">
         <h2>4. MVP 路线</h2>
-        <p class="lede">如果现在要做，不建议第一天就做“自动改代码”或“完全自主进化”。更稳的路线是分两步：第一步先做一个能稳定完成真实任务、能被验证的 agent；第二步再让它从任务轨迹里沉淀经验，形成轻量 self-evolution。</p>
+        <p class="lede">如果现在要做，不建议第一天就做“自动改代码”或“完全自主进化”。更稳的路线是分三步：第一步先把 PPT / Excel / Word 这类明确产物做成可靠生成器；第二步扩展成 information worker 的 coworker，能操作浏览器、沉淀垂直技能和 workflow；第三步再让它从任务轨迹里沉淀经验，形成 self-evolution agent。</p>
         <div class="callout">
           <div class="card-kicker">MVP Principle</div>
-          <p class="big-quote">第一步先证明 agent 能可靠干活；第二步再证明 agent 能越用越好。</p>
+          <p class="big-quote">第一步证明 agent 能稳定产出文件；第二步证明 agent 能协作完成真实工作流；第三步再证明 agent 能越用越好。</p>
         </div>
-        <div class="direction-grid">
+
+        <h3>Societas MVP 演进路线</h3>
+        <div class="timeline">
+          <article class="time-card"><strong>Societas 1.0</strong><p>PPT / Excel / Word 生成器：先把 information worker 高频、明确、可验收的文档产出任务产品化，证明 agent 能稳定交付具体工作结果。</p></article>
+          <article class="time-card"><strong>Societas 2.0</strong><p>Coworker for information worker：以 browser-operator 为真实执行入口，从 co-creation 中沉淀 vertical skills，并把重复任务固化为 workflow。</p></article>
+          <article class="time-card"><strong>Societas 3.0</strong><p>Self-evolution agent：在可靠执行和 workflow 沉淀之上，让 agent 从任务轨迹中自我诊断、更新技能与流程，形成越用越好的演进闭环。</p></article>
+        </div>
+
+        <div class="direction-grid mvp-step-grid">
           <article class="direction-card">
-            <div class="direction-head"><span class="num">1</span><h3>第一步 MVP：可验证执行型 Agent</h3></div>
-            <p>目标不是 self-evolve，而是做一个在单一垂直场景里能真实执行、可观测、可验收、可回滚的 agent。它要能操作真实环境，但所有关键动作都被 workflow 和 verifier 约束。</p>
-            <div class="tag-row"><span class="tag">Eval-first</span><span class="tag cyan">Computer-use</span><span class="tag gold">Workflow</span><span class="tag violet">Trace Log</span></div>
+            <div class="direction-head"><span class="num">1</span><h3>第一步 MVP：Societas 1.0 文档生成器</h3></div>
+            <p>从 PPT / Excel / Word 生成器开始，把高频、边界清楚、验收明确的文档产出任务产品化。重点不是通用自主性，而是稳定地产出可打开、可编辑、可复用的 Office artifacts。</p>
+            <div class="tag-row"><span class="tag">Office Output</span><span class="tag cyan">Template</span><span class="tag gold">Verifier</span><span class="tag violet">Revision</span></div>
           </article>
           <article class="direction-card">
-            <div class="direction-head"><span class="num">2</span><h3>第二步 MVP：轻量 Self-Evolving Agent</h3></div>
-            <p>在第一步稳定后，开放低风险的自进化对象：memory、failure pattern、skill card、workflow checklist、tool policy。agent 可以提出更新，但高风险更新先 human-gated。</p>
-            <div class="tag-row"><span class="tag coral">Memory</span><span class="tag">Skill</span><span class="tag cyan">Workflow Update</span><span class="tag gold">Human-gated</span></div>
+            <div class="direction-head"><span class="num">2</span><h3>第二步 MVP：Societas 2.0 Coworker</h3></div>
+            <p>扩展成 information worker 的 coworker：用 browser-operator 进入真实工作环境，在 co-creation 中学习用户和场景，把重复成功的做法沉淀为 vertical skills 与 workflow。</p>
+            <div class="tag-row"><span class="tag coral">Browser-operator</span><span class="tag">Co-creation</span><span class="tag cyan">Vertical Skills</span><span class="tag gold">Workflow</span></div>
+          </article>
+          <article class="direction-card">
+            <div class="direction-head"><span class="num">3</span><h3>第三步 MVP：Societas 3.0 Self-Evolution Agent</h3></div>
+            <p>在稳定执行和 workflow 沉淀后，开放低风险的自进化对象：memory、failure pattern、skill card、workflow checklist、tool policy。agent 可以提出更新，但高风险更新先 human-gated。</p>
+            <div class="tag-row"><span class="tag violet">Memory</span><span class="tag">Skill Update</span><span class="tag cyan">Workflow Update</span><span class="tag gold">Human-gated</span></div>
           </article>
         </div>
 
-        <h3>第一步 MVP 具体做什么</h3>
+        <h3>第一步 MVP 具体做什么：Societas 1.0 文档生成器</h3>
         <div class="compare">
           <table>
             <thead><tr><th>模块</th><th>要做什么</th><th>验收标准</th></tr></thead>
             <tbody>
-              <tr><td>垂直任务</td><td>只选一个高频、边界清楚的场景，例如研究摘要、代码仓库问答、浏览器填表、CRM 更新。</td><td>任务输入和完成状态可定义，不追求通用。</td></tr>
-              <tr><td>Workflow</td><td>把任务拆成固定步骤：接收任务、检索上下文、执行、阶段验证、失败恢复、人工确认、最终提交。</td><td>每一步有进入条件、退出条件和失败分支。</td></tr>
-              <tr><td>Computer-use / Tools</td><td>接入浏览器、文件、API、IDE 或 SaaS 工具，但先限制工具集合和权限。</td><td>能完成真实环境操作，关键动作有日志。</td></tr>
-              <tr><td>Eval / Verifier</td><td>先设计验收器：状态检查、测试、格式检查、引用检查、安全检查、成本检查。</td><td>不是 agent 说完成，而是 verifier 判定完成。</td></tr>
-              <tr><td>Trace Log</td><td>记录每次任务的输入、计划、动作、工具调用、观察、错误、最终输出、验收结果。</td><td>失败后能复盘到具体步骤和工具调用。</td></tr>
+              <tr><td>文档场景</td><td>优先选择 PPT、Excel、Word 中高频、边界清楚、可模板化的产出，例如汇报材料、分析表格、会议纪要、研究简报。</td><td>输入格式、目标文件类型、完成状态都能被清楚定义。</td></tr>
+              <tr><td>Artifact Plan</td><td>把用户意图和素材转成可检查的产物计划：PPT 大纲、Excel 表结构 / 公式 / 图表、Word 章节结构。</td><td>生成前用户能审阅结构，不靠一次性黑盒生成。</td></tr>
+              <tr><td>Office Generator</td><td>生成或编辑 pptx / xlsx / docx，支持模板、样式、图表、表格、引用和基础排版。</td><td>文件能打开、能编辑、格式稳定，关键内容不丢失。</td></tr>
+              <tr><td>Verifier</td><td>检查文件完整性、必需章节、页数 / 字数、公式、图表、样式、引用、链接和空白占位。</td><td>不是 agent 说完成，而是文件通过自动验收。</td></tr>
+              <tr><td>Revision Loop</td><td>支持用户针对某页、某表、某段提出修改，并尽量局部更新而不是整份重生成。</td><td>修改可控、可追踪，不破坏已经确认的内容。</td></tr>
+              <tr><td>Trace Log</td><td>记录输入素材、产物计划、生成参数、文件版本、验收结果和用户修改意见。</td><td>失败后能定位是素材、计划、生成器还是验收器问题。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="lede">第一步 MVP 的成功标准：不是“agent 很聪明”，而是它能稳定产出可用的 PPT / Excel / Word，并且每个文件都能被验证、被修改、被复盘。</p>
+
+        <h3>第二步 MVP 具体做什么：Societas 2.0 Information Worker Coworker</h3>
+        <div class="compare">
+          <table>
+            <thead><tr><th>模块</th><th>要做什么</th><th>验收标准</th></tr></thead>
+            <tbody>
+              <tr><td>Browser-operator</td><td>让 agent 能在浏览器和 SaaS 中读取页面、检索信息、填写表单、下载材料、更新系统状态。</td><td>真实环境操作可观测、可回放，关键动作必须有日志和确认点。</td></tr>
+              <tr><td>Co-creation Loop</td><td>和用户共同澄清目标、约束、上下文和输出偏好，必要时先提问、先给计划、再执行。</td><td>用户能在执行前后介入，不被迫接受一次性结果。</td></tr>
+              <tr><td>Vertical Skills</td><td>从重复任务中沉淀场景技能，例如研究摘要、CRM 更新、投标材料、项目周报、竞品分析。</td><td>每个 skill 有 intent、preconditions、steps、validation 和 failure modes。</td></tr>
+              <tr><td>Workflow</td><td>把浏览器、文件、Office、API、人工确认串成固定流程，包含阶段检查、失败恢复和最终提交。</td><td>每一步有进入条件、退出条件和失败分支。</td></tr>
+              <tr><td>Eval / Verifier</td><td>为真实工作流设计状态检查、格式检查、引用检查、安全检查、成本检查和结果验收。</td><td>不是 agent 说完成，而是 workflow 的目标状态被 verifier 判定完成。</td></tr>
               <tr><td>Human Approval</td><td>发送邮件、提交订单、删除文件、付款、外部发布等动作必须停下来确认。</td><td>高风险动作不会自动越权执行。</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="lede">第一步 MVP 的成功标准：不是“agent 很聪明”，而是它在一个具体场景里能稳定完成任务，并且每次成功或失败都能被验证、被复盘、被回滚。</p>
+        <p class="lede">第二步 MVP 的成功标准：agent 不只会生成文件，而是能作为 information worker 的 coworker，在真实工具链里稳定推进任务，并把重复成功的路径沉淀成技能和 workflow。</p>
 
-        <h3>第二步 MVP 具体做什么</h3>
+        <h3>第三步 MVP 具体做什么：Societas 3.0 Self-Evolution Agent</h3>
         <div class="compare">
           <table>
             <thead><tr><th>可进化对象</th><th>自动生成什么</th><th>如何防止越进化越差</th></tr></thead>
@@ -249,14 +279,10 @@
             </tbody>
           </table>
         </div>
-        <p class="lede">第二步 MVP 的成功标准：同类任务第二次、第三次执行时，能因为历史经验而减少步骤、减少失败、减少人工介入，并且没有增加安全风险或旧任务 regression。</p>
+        <p class="lede">第三步 MVP 的成功标准：同类任务第二次、第三次执行时，能因为历史经验而减少步骤、减少失败、减少人工介入，并且没有增加安全风险或旧任务 regression。</p>
 
-        <h3>两个 MVP 的闭环差异</h3>
-        <div class="map"><pre><code>第一步 MVP：可验证执行
-User Task -> Workflow -> Tool / Computer-use -> Verifier -> Human Approval -> Trace Log
-
-第二步 MVP：轻量自进化
-Trace Log -> Diagnose -> Candidate Update -> Validate -> Approve / Merge -> Future Runs</code></pre></div>
+        <h3>三步 MVP 的闭环差异</h3>
+        <div class="map"><pre><code>第一步 MVP：Societas 1.0 文档生成器&#10;User Intent -> Source Material -> Artifact Plan -> PPT / Excel / Word -> Verifier -> Revision&#10;&#10;第二步 MVP：Societas 2.0 Information Worker Coworker&#10;User Goal -> Co-create Plan -> Browser / SaaS / Files -> Workflow Checkpoint -> Human Approval -> Trace Log&#10;&#10;第三步 MVP：Societas 3.0 Self-Evolution Agent&#10;Trace Log -> Diagnose -> Candidate Update -> Regression Validate -> Approve / Merge -> Future Runs</code></pre></div>
       </section>
 
       <section id="compare">
