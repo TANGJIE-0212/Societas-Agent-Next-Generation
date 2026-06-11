@@ -60,6 +60,9 @@ instrumented trajectories
 | Skill 开放世界自举 | OpenSkill, 2026, https://arxiv.org/abs/2606.06741 | skill + verifier anchors | 从文档、仓库、web 获取知识，生成 virtual tasks，自建验证信号 | 真部署时没有 gold answer，agent 必须先造练习场和验收器 |
 | Skill 层级化整合 | SkillPyramid, 2026, https://arxiv.org/abs/2606.03692 | hierarchical skill topology | compose / validate / incorporate 新 skill | skill bank 不能只是平铺列表，需要拓扑、复用、泛化 |
 | Skill-tool 协同进化 | SkillSmith, 2026, https://arxiv.org/abs/2606.01314 | skill 与 tool 同时进化 | reflection 生成 skill-tool atomic bundle，估计互补/冲突，记录 anti-pattern | skill 失败可能来自 tool 层，二者要一起改 |
+| 轨迹自动封装技能 | SkillEvolver, 2026, https://arxiv.org/abs/2605.10500 | 单个 meta-skill 迭代生成/部署/打磨的领域 skill | 把“学技能”本身当成一个在线 meta-skill，从真实使用中持续改进 skill | 把重复轨迹固化成技能可大幅减少 token 消耗，复用率约 72% |
+| 网页 API 技能自举 | SkillWeaver, 2025, https://arxiv.org/abs/2504.07079 | 网页 agent 的可复用 API 交互技能 | 自主探索陌生网站，把成功交互封装成可复用 API-style skill 并打磨 | web agent 可以靠探索陌生站点自建技能库，不依赖人工脚本 |
+| 失败驱动技能进化 | EvoSkill, 2026, https://arxiv.org/abs/2603.02766 | agent skill（多 agent 场景） | 通过迭代 failure analysis 自动发现和精炼 skill，扩充适用边界 | 用失败溯源驱动技能新增，能显著降低长任务失败率 |
 | 记忆退化风险 | Useful Memories Become Faulty, 2026, https://arxiv.org/abs/2605.12978 | episodic traces 与 consolidated memory | 对比保留原始轨迹、强制总结、可控 retain/delete/consolidate | 持续 LLM 总结可能把有用记忆改坏；raw episode 必须是一等公民 |
 | 经验结构化 | Tree-of-Experience, 2026, https://arxiv.org/abs/2606.06960 | experience tree | 组织、检索、验证、更新经验 | 低重复、隐式奖励环境中，经验管理比“多记一点”更关键 |
 
@@ -70,6 +73,8 @@ instrumented trajectories
 | 自动生成 multi-agent | EvoAgent, 2024-2025, https://arxiv.org/abs/2406.14228 | 多 agent 配置、角色、设置 | mutation / crossover / selection | 从单 agent 扩展到多 agent，可以用进化算法搜索团队结构 |
 | 开放式多 agent 发现 | CORAL, 2026, https://arxiv.org/abs/2604.01658 | long-running agents、shared persistent memory、协作机制 | 异步多 agent + 共享记忆 + heartbeat intervention + sandbox | 长期 open-ended search 需要 agent 自治，也需要资源、安全和会话治理 |
 | 测试时多 agent 共进化 | EVOCHAMBER, 2026, https://arxiv.org/abs/2605.11136 | individual memory、team structure、population lifecycle、knowledge flow | post-task collaborative dreaming，强 agent 向弱 agent 定向传递 niche knowledge，fork/merge/prune/seed | 多 agent evolution 不等于 N 个单 agent；核心是协作拓扑和知识流也在进化 |
+| 无预设分工的团队进化 | Evolve as a Team, 2026.5, https://arxiv.org/abs/2605.29790 | 个体推理、交互链路、角色分配 | 不给固定分工，团队自主优化每个 agent 的推理、彼此交互链路和角色划分 | 团队结构可以从零自组织，协同任务成功率约提升 45% |
+| 角色与拓扑动态生成 | MetaGen, 2026.1, https://arxiv.org/abs/2601.19290 | agent 角色集合、协作网络拓扑 | 动态生成、优化、淘汰角色，并自适应切换协作拓扑 | 角色和拓扑都可进化，能大幅降低集群通信成本 |
 | 社会化进化评估 | SAGE, 2026, https://arxiv.org/abs/2606.03544 | peer history 与 group learning | SelfEvo vs SocialEvo compute-matched 对照 | 共享历史不是总有用，filtered summaries 往往优于 raw logs |
 
 ### 1.4 Eval / Reward / Scientific loop
@@ -225,6 +230,12 @@ experience graph/tree  组织适用范围、前置条件、冲突关系
 **进化对象**：可执行代码技能、操作流程、任务模板、浏览器/GUI 例程、问题求解策略、领域方法。
 
 **代表脉络**：Voyager 的 executable skill library 是早期标志；2026 的 OpenSkill、SkillPyramid、SkillMaster、SkillSmith 则把 skill 从“库”升级为“生态系统”。
+
+**技能自主生成进化的三条落地线**：解决传统 agent 技能固化、无法适配新场景的痛点，让 skill 能自动生成、打磨、淘汰。
+
+- **轨迹驱动的 meta-skill（SkillEvolver, 2026, https://arxiv.org/abs/2605.10500）**：把“学技能”本身当成一个在线 meta-skill，由它迭代生成、部署、打磨领域 skill，从真实使用中持续改进。把重复轨迹固化成技能可大幅减少 token 消耗，技能复用率约 72%。
+- **网页 API 技能自举（SkillWeaver, 2025, https://arxiv.org/abs/2504.07079）**：网页 agent 专属方案，自主探索陌生网站，把成功交互沉淀成可复用的 API-style skill 并持续打磨——不依赖人工脚本就能自建网站技能库。
+- **失败驱动进化（EvoSkill, 2026, https://arxiv.org/abs/2603.02766）**：通过迭代 failure analysis 自动发现和精炼 agent skill，针对失败点新增技能、扩充适用边界，从而降低长任务失败率。它和被动“多记一点”相反，是用失败定位来定向补技能。
 
 **2026 最佳范式**：skill 不只是存储，而是经历 create / compose / validate / retire / specialize / generalize。
 
@@ -404,6 +415,11 @@ how knowledge flows
 **最佳范式**：population archive + specialization-preserving knowledge transfer。
 
 EVOCHAMBER 的启发是：失败或分歧后触发 collaborative dreaming，让强 agent 将特定 niche 的知识传给弱 agent，但不是广播给所有人。这样既能补短板，又不抹平 specialization。
+
+**集群协同进化的两条新线**：打破固定团队架构，让 agent 集群自适应调整分工与协作拓扑。
+
+- **无预设分工（Evolve as a Team, 2026.5, https://arxiv.org/abs/2605.29790）**：不给固定角色和分工，团队自主优化每个 agent 的推理、彼此的交互链路和角色分配；协同任务成功率约提升 45%。它说明团队结构可以从零自组织，而不必人工设计 role。
+- **角色与拓扑动态生成（MetaGen, 2026.1, https://arxiv.org/abs/2601.19290）**：动态生成、优化、淘汰 agent 角色，并自适应切换协作网络拓扑；通过精简无效角色和链路，大幅降低集群通信成本。它把“团队里有谁、怎么连”也当成可进化对象。
 
 CORAL 的启发是：长期 open-ended discovery 需要异步多 agent、共享持久记忆、隔离工作区、资源管理、健康检查和 heartbeat intervention。
 

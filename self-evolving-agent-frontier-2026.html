@@ -699,6 +699,9 @@
               <tr><td>Skill 开放世界自举</td><td><a href="https://arxiv.org/abs/2606.06741">OpenSkill</a>, 2026</td><td>skill + verifier anchors</td><td>从文档、仓库、web 获取知识，生成 virtual tasks，自建验证信号</td><td>真部署时没有 gold answer，agent 必须先造练习场和验收器。</td></tr>
               <tr><td>Skill 层级化整合</td><td><a href="https://arxiv.org/abs/2606.03692">SkillPyramid</a>, 2026</td><td>hierarchical skill topology</td><td>compose / validate / incorporate 新 skill</td><td>skill bank 不能只是平铺列表，需要拓扑、复用、泛化。</td></tr>
               <tr><td>Skill-tool 协同进化</td><td><a href="https://arxiv.org/abs/2606.01314">SkillSmith</a>, 2026</td><td>skill 与 tool 同时进化</td><td>skill-tool atomic bundle，估计互补/冲突，记录 anti-pattern</td><td>skill 失败可能来自 tool 层，二者要一起改。</td></tr>
+              <tr><td>轨迹驱动 meta-skill</td><td><a href="https://arxiv.org/abs/2605.10500">SkillEvolver</a>, 2026</td><td>单个 meta-skill 迭代生成/部署/打磨的领域 skill</td><td>把“学技能”本身当成在线 meta-skill，从真实使用中持续改进</td><td>把重复轨迹固化成技能可大幅减少 token 消耗，复用率约 72%。</td></tr>
+              <tr><td>网页 API 技能自举</td><td><a href="https://arxiv.org/abs/2504.07079">SkillWeaver</a>, 2025</td><td>网页 agent 的可复用 API 交互技能</td><td>自主探索陌生网站，把成功交互封装成可复用 API-style skill 并打磨</td><td>web agent 可靠探索陌生站点自建技能库，不依赖人工脚本。</td></tr>
+              <tr><td>失败驱动技能进化</td><td><a href="https://arxiv.org/abs/2603.02766">EvoSkill</a>, 2026</td><td>agent skill（多 agent 场景）</td><td>通过迭代 failure analysis 自动发现和精炼 skill，扩充适用边界</td><td>用失败溯源驱动技能新增，显著降低长任务失败率。</td></tr>
               <tr><td>记忆退化风险</td><td><a href="https://arxiv.org/abs/2605.12978">Useful Memories Become Faulty</a>, 2026</td><td>episodic traces 与 consolidated memory</td><td>对比保留原始轨迹、强制总结、可控 retain/delete/consolidate</td><td>持续 LLM 总结可能把有用记忆改坏；raw episode 必须是一等公民。</td></tr>
               <tr><td>经验结构化</td><td><a href="https://arxiv.org/abs/2606.06960">Tree-of-Experience</a>, 2026</td><td>experience tree</td><td>组织、检索、验证、更新经验</td><td>低重复、隐式奖励环境中，经验管理比“多记一点”更关键。</td></tr>
             </tbody>
@@ -713,6 +716,8 @@
               <tr><td>自动生成 multi-agent</td><td><a href="https://arxiv.org/abs/2406.14228">EvoAgent</a>, 2024-2025</td><td>多 agent 配置、角色、设置</td><td>mutation / crossover / selection</td><td>从单 agent 扩展到多 agent，可以用进化算法搜索团队结构。</td></tr>
               <tr><td>开放式多 agent 发现</td><td><a href="https://arxiv.org/abs/2604.01658">CORAL</a>, 2026</td><td>long-running agents、shared persistent memory、协作机制</td><td>异步多 agent + 共享记忆 + heartbeat intervention + sandbox</td><td>长期 open-ended search 需要自治，也需要资源、安全和会话治理。</td></tr>
               <tr><td>测试时多 agent 共进化</td><td><a href="https://arxiv.org/abs/2605.11136">EVOCHAMBER</a>, 2026</td><td>individual memory、team structure、population lifecycle、knowledge flow</td><td>collaborative dreaming，定向传递 niche knowledge，fork/merge/prune/seed</td><td>核心是协作拓扑和知识流也在进化。</td></tr>
+              <tr><td>无预设分工的团队进化</td><td><a href="https://arxiv.org/abs/2605.29790">Evolve as a Team</a>, 2026.5</td><td>个体推理、交互链路、角色分配</td><td>不给固定分工，团队自主优化推理、交互链路和角色划分</td><td>团队结构可从零自组织，协同任务成功率约提升 45%。</td></tr>
+              <tr><td>角色与拓扑动态生成</td><td><a href="https://arxiv.org/abs/2601.19290">MetaGen</a>, 2026.1</td><td>agent 角色集合、协作网络拓扑</td><td>动态生成、优化、淘汰角色，并自适应切换协作拓扑</td><td>角色和拓扑都可进化，能大幅降低集群通信成本。</td></tr>
               <tr><td>社会化进化评估</td><td><a href="https://arxiv.org/abs/2606.03544">SAGE</a>, 2026</td><td>peer history 与 group learning</td><td>SelfEvo vs SocialEvo compute-matched 对照</td><td>共享历史不是总有用，filtered summaries 往往优于 raw logs。</td></tr>
             </tbody>
           </table>
@@ -822,6 +827,7 @@ experience graph/tree  组织适用范围、前置条件、冲突关系</code></
             <p><strong>进化对象：</strong>可执行代码技能、操作流程、任务模板、浏览器/GUI 例程、问题求解策略、领域方法。</p>
             <p><strong>2026 最佳范式：</strong>skill 不只是存储，而是经历 create / compose / validate / retire / specialize / generalize。</p>
             <p>成熟 skill 应包含 name、intent、preconditions、inputs / outputs、procedure or code、required tools、validation probes、known failure modes、examples、version、usage stats、conflicts / complements、retirement criteria。</p>
+            <p><strong>落地三线：</strong>SkillEvolver（2026, arXiv:2605.10500）把“学技能”当成在线 meta-skill 迭代生成/打磨技能、复用率约 72% 且大幅省 token；SkillWeaver（2025, arXiv:2504.07079）让 web agent 探索陌生站点自建 API 技能；EvoSkill（2026, arXiv:2603.02766）用失败溯源驱动技能新增和边界扩充，降低长任务失败率。</p>
             <p><strong>风险：</strong>skill 会互相冲突；单独有效不代表组合有效。</p>
           </div>
         </details>
@@ -887,6 +893,7 @@ regression suite</code></pre>
 how they collaborate
 how knowledge flows</code></pre>
             <p>知识传递应不对称、按 niche 路由，而不是全员共享 raw logs。</p>
+            <p><strong>集群协同进化两条新线：</strong>Evolve as a Team（2026.5, arXiv:2605.29790）无预设分工，团队自主优化推理、交互链路与角色划分，协同成功率约 +45%；MetaGen（2026.1, arXiv:2601.19290）动态生成/优化/淘汰角色，自适应切换拓扑，大幅降低集群通信成本。</p>
           </div>
         </details>
 
